@@ -62,12 +62,9 @@ regions glow incorrectly.
 
 ## Things to know
 
-- **GSAP trial plugins.** `ScrollSmoother` and `SplitText` are imported from
-  `gsap-trial`, which is licensed for local development only and *not* for
-  public deployment. Before hosting this site publicly, get a
-  [GSAP Club](https://gsap.com/pricing/) membership and change the `gsap-trial`
-  imports in `Navbar.tsx`, `utils/initialFX.ts` and `utils/splitText.ts` to
-  `gsap`.
+- **GSAP.** `ScrollSmoother` and `SplitText` are imported from the plain
+  `gsap` package (v3.13+), which bundles every plugin for free since GSAP's
+  April 2025 licensing change. No club membership or `gsap-trial` needed.
 - **Desktop vs mobile.** The 1024px width breakpoint is a JavaScript one, not
   just CSS: below it the 3D character moves inside the landing section and the
   tech-stack canvas does not mount at all (`MainContainer.tsx`).

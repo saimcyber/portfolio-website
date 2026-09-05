@@ -28,3 +28,5 @@ backup/
 .env
 # TypeScript incremental build info
 *.tsbuildinfo
+
+.vercel
