@@ -1,0 +1,100 @@
+/*
+ * Hero "scroll to continue" cue. Sits bottom-center of .landing-section,
+ * z-index 13 - above .nav-fade (12) so it isn't washed out by that
+ * top-of-page gradient, below .landing-circle1 (15) which is a decorative
+ * corner glow it never overlaps at any breakpoint anyway.
+ */
+.scroll-cue {
+  /* Measured: at bottom:28px this overlapped the "~ SHELL" hint pill
+     (Terminal.tsx), which sits at bottom:16px, ~30px tall, also
+     bottom-centered - both are only visible near the top of the page, so
+     they collided directly. bottom:64px clears it with real margin. */
+  position: absolute;
+  bottom: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 13;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.scroll-cue-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #9c92ac;
+}
+
+.scroll-cue-line {
+  position: relative;
+  width: 1px;
+  height: 40px;
+  background-color: rgba(194, 164, 255, 0.28);
+  overflow: hidden;
+}
+
+.scroll-cue-dot {
+  position: absolute;
+  top: -8px;
+  left: -1.5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--accentColor);
+  box-shadow: 0 0 6px 1px var(--accentColor);
+  animation: scrollCueTravel 1.8s ease-in-out infinite;
+}
+
+@keyframes scrollCueTravel {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(48px);
+    opacity: 0;
+  }
+}
+
+/* prefers-reduced-motion: a static cue instead of no cue at all. */
+.scroll-cue-static .scroll-cue-dot {
+  animation: none;
+  top: auto;
+  bottom: 4px;
+  opacity: 0.9;
+}
+
+@media screen and (max-width: 1024px) {
+  /* Below the 1025px desktop breakpoint, .landing-info (Landing.css) is
+     bottom-anchored too - measured directly (not estimated): 107px tall at
+     390px width, but its font-size steps up at the 768px breakpoint, making
+     it 116px tall at everything from 768-1024px. A bottom:48px cue sat
+     directly inside that box, overlapping "AT SCALE" (confirmed in a real
+     screenshot) - the worse-case 116px is what has to clear:
+     40 (its own bottom offset) + 116 (worst-case height) + 16px gap. */
+  .scroll-cue {
+    bottom: 172px;
+  }
+  .scroll-cue-line {
+    height: 30px;
+  }
+  .scroll-cue-dot {
+    animation-duration: 1.5s;
+  }
+  @keyframes scrollCueTravel {
+    100% {
+      transform: translateY(38px);
+      opacity: 0;
+    }
+  }
+}

@@ -1,0 +1,89 @@
+.about-section {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  place-items: center;
+  position: relative;
+  opacity: 1;
+  height: auto;
+  width: var(--cWidth);
+  margin: auto;
+}
+.about-me {
+  padding: 50px 0px;
+  padding-bottom: 0;
+  width: 500px;
+  max-width: calc(100% - 15px);
+}
+.about-me h3 {
+  font-size: 25px;
+  text-transform: uppercase;
+  letter-spacing: 7px;
+  font-weight: 400;
+  color: var(--accentColor);
+}
+
+.about-me p {
+  /* Below 1025px this size is fixed (the vw-based scaling only kicks in on
+     desktop), so it has to start small enough for a phone and step up. */
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 26px;
+  letter-spacing: 1px;
+}
+
+@media only screen and (min-width: 600px) {
+  .about-me p {
+    font-size: 26px;
+    line-height: 31px;
+  }
+}
+@media only screen and (min-width: 768px) {
+  .about-me p {
+    font-size: 27px;
+    line-height: 32px;
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  .about-section {
+    justify-content: center;
+  }
+}
+@media only screen and (min-width: 768px) {
+  .about-me {
+    width: 500px;
+    max-width: calc(100% - 70px);
+    transform: translateY(0%);
+  }
+  .about-section {
+    opacity: 1;
+  }
+}
+@media only screen and (min-width: 1025px) {
+  .about-section {
+    width: var(--cWidth);
+    justify-content: right;
+    max-width: 1920px;
+    height: var(--vh);
+    padding: 0px;
+    opacity: 1;
+  }
+  .about-me {
+    padding: 0px;
+    width: 50%;
+  }
+  .about-me p {
+    /* Clamped by viewport HEIGHT as well as width. A width-only size (1.9vw)
+       stayed large on short laptop viewports (e.g. 1366x660), pushing the last
+       line past the fold and into the fixed RESUME / shell controls. */
+    font-size: min(1.9vw, 3.2vh);
+    line-height: min(2.3vw, 3.9vh);
+  }
+}
+@media only screen and (min-width: 1950px) {
+  .about-me p {
+    font-size: 2.5rem;
+    line-height: 2.7rem;
+  }
+}
