@@ -1,8 +1,22 @@
+/*
+ * Three explicit tracks: name | email | links.
+ *
+ * This was `display: flex; justify-content: space-between` with the email
+ * absolutely positioned at `left: 50%` - i.e. centred on the viewport with no
+ * knowledge of the flex items either side of it. Between roughly 900px and
+ * 1340px the two genuinely collided: measured overlap of 27px at 1280 and 48px
+ * at 900, with "saimzaib.official@gmail.com" running straight through "ABOUT".
+ * Placing all three in named grid columns lets the browser keep them apart at
+ * every width instead. Columns stay declared below 900px (where the email is
+ * `display: none`) so the links keep their own track and stay right-aligned.
+ */
 .header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 24px;
   max-width: var(--cMaxWidth);
   width: var(--cWidth);
-  justify-content: space-between;
   padding: 20px 0px;
   margin-bottom: -100px;
   box-sizing: border-box;
@@ -11,6 +25,18 @@
   transform: translateX(-50%);
   top: 0;
   z-index: 9999;
+}
+.navbar-title {
+  grid-column: 1;
+  justify-self: start;
+}
+.navbar-connect {
+  grid-column: 2;
+  justify-self: center;
+}
+.header ul {
+  grid-column: 3;
+  justify-self: end;
 }
 .header ul {
   font-size: 12px;
@@ -31,19 +57,17 @@
   cursor: pointer;
 }
 .navbar-connect {
-  position: absolute;
   display: none;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
   font-size: 15px;
   letter-spacing: 1px;
   font-weight: 500;
+  white-space: nowrap;
 }
 .navbar-title {
   font-weight: 700;
   font-size: 14px;
   letter-spacing: 0.2px;
+  white-space: nowrap;
 }
 @media only screen and (min-width: 500px) {
   .header {

@@ -29,14 +29,23 @@ const Loading = ({ percent }: { percent: number }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [clicked, setClicked] = useState(false);
 
-  if (percent >= 100) {
-    setTimeout(() => {
+  // Was a bare `if (percent >= 100) setTimeout(...)` in the render body, which
+  // scheduled a fresh pair of timers on every single render at 100% (and each
+  // of those setState calls caused another render). Running it from an effect
+  // keyed on the threshold fires the hand-off exactly once.
+  const complete = percent >= 100;
+  useEffect(() => {
+    if (!complete) return;
+    let inner = 0;
+    const outer = window.setTimeout(() => {
       setLoaded(true);
-      setTimeout(() => {
-        setIsLoaded(true);
-      }, 1000);
+      inner = window.setTimeout(() => setIsLoaded(true), 1000);
     }, 600);
-  }
+    return () => {
+      window.clearTimeout(outer);
+      window.clearTimeout(inner);
+    };
+  }, [complete]);
 
   useEffect(() => {
     import("./utils/initialFX").then((module) => {
@@ -137,7 +146,7 @@ export const setProgress = (setLoading: (value: number) => void) => {
 
   let interval = setInterval(() => {
     if (percent <= 50) {
-      let rand = Math.round(Math.random() * 5);
+      const rand = Math.round(Math.random() * 5);
       percent = percent + rand;
       setLoading(percent);
     } else {

@@ -27,7 +27,13 @@ const imageUrls = [
   "/images/stack/prometheus.svg",
   "/images/stack/grafana.svg",
 ];
-const textures = imageUrls.map((url) => textureLoader.load(url));
+const textures = imageUrls.map((url) => {
+  const texture = textureLoader.load(url);
+  // Without this the tiles are sampled as linear data and come out visibly
+  // darker and duller than the source SVGs.
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+});
 
 /* Containers, not spheres. The tumbling-sphere ball pit is one of the most
    cloned react-three-fiber demos going, so it read as borrowed; rounded cubes
@@ -36,8 +42,16 @@ const containerGeometry = new RoundedBoxGeometry(1.5, 1.5, 1.5, 4, 0.18);
 
 // Fewer, more settled containers read as a deliberate cluster rather than a
 // chaotic pile — 30 tightly homing bodies overlapped and jittered constantly.
-const spheres = [...Array(22)].map(() => ({
-  scale: [0.7, 1, 0.8, 1, 1][Math.floor(Math.random() * 5)],
+//
+// `material` is assigned here, once, by cycling through the texture list
+// rather than being picked at random inside the render. Random picking meant
+// (a) the assignment changed on every re-render, and (b) 22 independent draws
+// from 8 textures routinely left some of the stack missing entirely while
+// duplicating others — a "tech stack" that omitted Kubernetes on some loads.
+// Cycling guarantees all eight appear, 2-3 times each.
+const spheres = [...Array(22)].map((_, i) => ({
+  scale: [0.7, 1, 0.8, 1, 1][i % 5],
+  materialIndex: i % imageUrls.length,
 }));
 
 type SphereProps = {
@@ -209,11 +223,11 @@ const TechStack = () => {
         <directionalLight position={[0, 5, -4]} intensity={2} />
         <Physics gravity={[0, 0, 0]}>
           <Pointer isActive={isActive} />
-          {spheres.map((props, i) => (
+          {spheres.map(({ scale, materialIndex }, i) => (
             <SphereGeo
               key={i}
-              {...props}
-              material={materials[Math.floor(Math.random() * materials.length)]}
+              scale={scale}
+              material={materials[materialIndex]}
               isActive={isActive}
             />
           ))}

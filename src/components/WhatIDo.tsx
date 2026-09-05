@@ -9,20 +9,23 @@ const WhatIDo = () => {
     containerRef.current[index] = el;
   };
   useEffect(() => {
-    if (ScrollTrigger.isTouch) {
-      containerRef.current.forEach((container) => {
-        if (container) {
-          container.classList.remove("what-noTouch");
-          container.addEventListener("click", () => handleClick(container));
-        }
+    if (!ScrollTrigger.isTouch) return;
+    // The listener has to be the same function object to be removable. The
+    // previous cleanup passed a freshly created arrow function to
+    // removeEventListener, which never matches the one that was added, so the
+    // handlers accumulated across remounts.
+    const bound = containerRef.current
+      .filter((c): c is HTMLDivElement => c !== null)
+      .map((container) => {
+        container.classList.remove("what-noTouch");
+        const listener = () => handleClick(container);
+        container.addEventListener("click", listener);
+        return { container, listener };
       });
-    }
     return () => {
-      containerRef.current.forEach((container) => {
-        if (container) {
-          container.removeEventListener("click", () => handleClick(container));
-        }
-      });
+      bound.forEach(({ container, listener }) =>
+        container.removeEventListener("click", listener)
+      );
     };
   }, []);
   return (

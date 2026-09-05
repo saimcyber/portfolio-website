@@ -42,6 +42,15 @@ async function fetchJson(url: string, timeoutMs = 6000): Promise<Record<string, 
     const res = await fetch(url, { signal: controller.signal });
     if (!res.ok) throw new Error(`${url} responded ${res.status}`);
     return await res.json();
+  } catch (err) {
+    // An abort surfaces as the browser's own "signal is aborted without
+    // reason", which was reaching the page verbatim as
+    // "location lookup unavailable (signal is aborted without reason)".
+    // Say what actually happened instead.
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new Error(`timed out after ${timeoutMs / 1000}s`);
+    }
+    throw err;
   } finally {
     clearTimeout(timeout);
   }
@@ -472,7 +481,30 @@ export interface FullReport {
   webrtc: WebRTCCheck;
 }
 
-export async function getFullReport(): Promise<FullReport> {
+/**
+ * Cached across callers.
+ *
+ * Both the Footprint section and the terminal's `recon` command ask for this,
+ * and each call re-ran the whole battery: an IP lookup over the network, a
+ * canvas raster, a WebGL context, a 5000-sample OfflineAudioContext render and
+ * an ICE gathering round. Running that twice cost a second network round trip
+ * and duplicated work for an identical answer, so the promise is memoised. A
+ * failed run is not cached, so a visitor who opens `recon` after a network
+ * blip gets a fresh attempt.
+ */
+let reportPromise: Promise<FullReport> | null = null;
+
+export function getFullReport(): Promise<FullReport> {
+  if (!reportPromise) {
+    reportPromise = buildFullReport().catch((err) => {
+      reportPromise = null;
+      throw err;
+    });
+  }
+  return reportPromise;
+}
+
+async function buildFullReport(): Promise<FullReport> {
   const [network, fingerprint, webrtc] = await Promise.all([
     getNetworkInfo(),
     getFingerprint(),

@@ -1,4 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
+/* The Geist webfont is requested from index.html with a preconnect, not with an
+   `@import` here. An `@import` at the top of the entry stylesheet cannot start
+   until this file itself has downloaded and parsed, which serialised the load
+   as HTML -> app CSS -> Google's font CSS -> the font files. The <link> in the
+   document head is discovered by the preload scanner instead, so the font CSS
+   and the app CSS download in parallel. */
 
 :root {
   font-family: "Geist", sans-serif;
@@ -75,12 +80,6 @@ body {
   margin: auto;
   position: relative;
 }
-.container1 {
-  width: var(--cWidth);
-  height: var(--vh);
-  margin: auto;
-  position: relative;
-}
 .split-line {
   overflow: hidden;
 }
@@ -104,8 +103,15 @@ body {
      faint to register as a hairline at all, not just "subtle". 0.45 peak
      opacity is the lowest value that actually renders as a visible line
      while staying a plain static hairline, not a glow. */
-  width: var(--cWidth);
-  max-width: var(--cMaxWidth);
+  /* Width tracks .section-container, NOT --cWidth. The page has two content
+     measures: About/WhatIDo run at --cWidth, while Career, Work, Footprint and
+     Contact run at the narrower .section-container. A --cWidth divider matched
+     the former and overhung the latter at every width above 500px - measured
+     253px past the card edge on each side at 1920, 152px at 1280 and 173px at
+     900, so the hairline visibly stuck out past the cards it separates.
+     Matching the narrower measure keeps it inside both. */
+  width: 1300px;
+  max-width: calc(100% - 30px);
   height: 1px;
   margin: 0 auto;
   background: linear-gradient(
@@ -114,6 +120,23 @@ body {
     rgba(194, 164, 255, 0.45),
     transparent
   );
+}
+@media only screen and (max-width: 1600px) {
+  .section-divider {
+    width: 1200px;
+    max-width: calc(100% - 160px);
+  }
+}
+@media only screen and (max-width: 1400px) {
+  .section-divider {
+    width: 900px;
+  }
+}
+@media only screen and (max-width: 900px) {
+  .section-divider {
+    width: 500px;
+    max-width: var(--cWidth);
+  }
 }
 
 .techstack {

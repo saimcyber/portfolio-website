@@ -27,21 +27,33 @@ const Navbar = () => {
     smoother.scrollTop(0);
     smoother.paused(true);
 
-    let links = document.querySelectorAll(".header ul a");
-    links.forEach((elem) => {
-      let element = elem as HTMLAnchorElement;
-      element.addEventListener("click", (e) => {
-        if (window.innerWidth > 1024) {
-          e.preventDefault();
-          let elem = e.currentTarget as HTMLAnchorElement;
-          let section = elem.getAttribute("data-href");
-          smoother.scrollTo(section, true, "top top");
-        }
-      });
-    });
-    window.addEventListener("resize", () => {
+    // Both of these used to be added with no matching cleanup, so a remount
+    // (React StrictMode does one in development) left the previous set bound
+    // and every nav click ran the scroll twice.
+    const onLinkClick = (e: Event) => {
+      if (window.innerWidth > 1024) {
+        e.preventDefault();
+        const elem = e.currentTarget as HTMLAnchorElement;
+        const section = elem.getAttribute("data-href");
+        smoother.scrollTo(section, true, "top top");
+      }
+    };
+    const links = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>(".header ul a")
+    );
+    links.forEach((element) => element.addEventListener("click", onLinkClick));
+
+    const onResize = () => {
       ScrollSmoother.refresh(true);
-    });
+    };
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      links.forEach((element) =>
+        element.removeEventListener("click", onLinkClick)
+      );
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
   return (
     <>

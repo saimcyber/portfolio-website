@@ -29,6 +29,7 @@ const Contact = () => {
             <a
               href={personal.github}
               target="_blank"
+              rel="noopener"
               data-cursor="disable"
               className="contact-social"
             >
@@ -37,6 +38,7 @@ const Contact = () => {
             <a
               href={personal.linkedin}
               target="_blank"
+              rel="noopener"
               data-cursor="disable"
               className="contact-social"
             >

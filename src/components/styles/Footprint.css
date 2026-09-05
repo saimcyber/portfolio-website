@@ -34,14 +34,6 @@
   color: var(--accentColor);
 }
 
-.fp-loading {
-  text-align: center;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  color: #6f6480;
-  padding: 60px 0;
-  letter-spacing: 1px;
-}
-
 .fp-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

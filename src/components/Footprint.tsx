@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./styles/Footprint.css";
 import {
   FullReport,
@@ -50,17 +50,19 @@ function Row({
   label,
   value,
   loading,
+  fallback = "not exposed by this browser",
 }: {
   label: string;
   value: React.ReactNode;
   loading: boolean;
+  /** Override for rows whose blankness has a different cause - a failed IP
+   *  lookup is not the browser withholding anything. */
+  fallback?: string;
 }) {
   return (
     <div className="fp-row">
       <span className="fp-label">{label}</span>
-      <span className="fp-value">
-        {loading ? "…" : value ?? "not exposed by this browser"}
-      </span>
+      <span className="fp-value">{loading ? "…" : value ?? fallback}</span>
     </div>
   );
 }
@@ -70,6 +72,7 @@ function yesNo(v: boolean) {
 }
 
 const Footprint = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
   const [report, setReport] = useState<FullReport | null>(null);
   const loading = !report;
   const r = report ?? emptyReport();
@@ -81,13 +84,49 @@ const Footprint = () => {
     | { status: "error"; message: string }
   >({ status: "idle" });
 
+  /**
+   * Deferred until the section is within a viewport of being seen.
+   *
+   * This used to run on mount, i.e. during the initial page load, where it put
+   * a third-party IP request plus a canvas raster, a WebGL context, an
+   * OfflineAudioContext render and an ICE gathering round on the critical path
+   * of a page that is already loading a WebGL hero. The section sits five
+   * screens down, so none of that is needed until the visitor heads that way.
+   * `rootMargin` gives it a full screen of runway so the values are in place
+   * before the cards are actually read.
+   */
   useEffect(() => {
+    const node = sectionRef.current;
+    if (!node) return;
     let cancelled = false;
-    getFullReport().then((rep) => {
-      if (!cancelled) setReport(rep);
-    });
+
+    const start = () => {
+      getFullReport().then((rep) => {
+        if (!cancelled) setReport(rep);
+      });
+    };
+
+    if (typeof IntersectionObserver === "undefined") {
+      start();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          observer.disconnect();
+          start();
+        }
+      },
+      { rootMargin: "100% 0px" }
+    );
+    observer.observe(node);
+
     return () => {
       cancelled = true;
+      observer.disconnect();
     };
   }, []);
 
@@ -110,8 +149,16 @@ const Footprint = () => {
     r.preferences.browserTimezone &&
     r.network.ipTimezone !== r.preferences.browserTimezone;
 
+  const netFallback = r.network.error
+    ? "lookup unavailable"
+    : "not exposed by this browser";
+
   return (
-    <div className="footprint-section section-container" id="footprint">
+    <div
+      className="footprint-section section-container"
+      id="footprint"
+      ref={sectionRef}
+    >
       <div className="fp-intro">
         <h3 className="fp-eyebrow">Digital Footprint</h3>
         <h2 className="fp-title">
@@ -120,15 +167,18 @@ const Footprint = () => {
       </div>
 
       <div className="fp-grid">
+        {/* When the IP lookup fails every row here is blank for one reason -
+            the lookup - so they say so rather than each blaming the browser
+            for withholding data it never had a chance to expose. */}
         <div className="fp-card">
           <h4>Network</h4>
-          <Row label="Public IP" value={r.network.ip} loading={loading} />
-          <Row label="City" value={r.network.city} loading={loading} />
-          <Row label="Region" value={r.network.region} loading={loading} />
-          <Row label="Country" value={r.network.country} loading={loading} />
-          <Row label="Postal code" value={r.network.postal} loading={loading} />
-          <Row label="ISP / org" value={r.network.isp} loading={loading} />
-          <Row label="ASN" value={r.network.asn} loading={loading} />
+          <Row label="Public IP" value={r.network.ip} loading={loading} fallback={netFallback} />
+          <Row label="City" value={r.network.city} loading={loading} fallback={netFallback} />
+          <Row label="Region" value={r.network.region} loading={loading} fallback={netFallback} />
+          <Row label="Country" value={r.network.country} loading={loading} fallback={netFallback} />
+          <Row label="Postal code" value={r.network.postal} loading={loading} fallback={netFallback} />
+          <Row label="ISP / org" value={r.network.isp} loading={loading} fallback={netFallback} />
+          <Row label="ASN" value={r.network.asn} loading={loading} fallback={netFallback} />
           {!loading && r.network.error && (
             <p className="fp-note fp-warn">{r.network.error}</p>
           )}
@@ -257,25 +307,39 @@ const Footprint = () => {
 
         <div className="fp-card fp-card-wide">
           <h4>WebRTC posture check</h4>
+          {/* `supported && !mdnsObfuscated` used to render "Exposed —" on its
+              own whenever no candidate was gathered at all (blocked by an
+              extension, no network interface, or simply timed out). A blank
+              candidate is the opposite of a leak, and calling it "Exposed" on
+              a security-themed page is a false alarm about the visitor's own
+              setup - so the no-candidate case is now its own verdict. */}
           {loading ? (
             <p className="fp-note">…</p>
-          ) : r.webrtc.supported ? (
-            r.webrtc.mdnsObfuscated ? (
-              <p className="fp-note fp-good">
-                ✓ Masked — <span className="fp-hash">{r.webrtc.localCandidate}</span>
-              </p>
-            ) : (
-              <p className="fp-note fp-warn">
-                Exposed — <span className="fp-hash">{r.webrtc.localCandidate}</span>
-              </p>
-            )
-          ) : (
+          ) : !r.webrtc.supported ? (
             <p className="fp-note">unsupported</p>
+          ) : !r.webrtc.localCandidate ? (
+            <p className="fp-note fp-good">
+              ✓ No host candidate gathered — nothing leaked
+            </p>
+          ) : r.webrtc.mdnsObfuscated ? (
+            <p className="fp-note fp-good">
+              ✓ Masked — <span className="fp-hash">{r.webrtc.localCandidate}</span>
+            </p>
+          ) : (
+            <p className="fp-note fp-warn">
+              Exposed — <span className="fp-hash">{r.webrtc.localCandidate}</span>
+            </p>
           )}
         </div>
       </div>
 
-      <div className="fp-divider" />
+      {/* .fp-divider is styled as a labelled rule - two flex lines with a
+          14px gap for a caption between them. It was rendered self-closing,
+          so the gap sat there as a visible notch in the middle of an
+          otherwise unbroken line. It has its label now. */}
+      <div className="fp-divider">
+        <span>with your permission</span>
+      </div>
 
       <div className="fp-gps">
         <button className="fp-gps-btn" onClick={handleGpsClick} data-cursor="disable">

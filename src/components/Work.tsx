@@ -41,7 +41,7 @@ const Work = () => {
 
     setTranslateX();
 
-    let timeline = gsap.timeline({
+    const timeline = gsap.timeline({
       scrollTrigger: {
         trigger: ".work-section",
         start: "top top",
@@ -59,30 +59,21 @@ const Work = () => {
     });
 
     /**
-     * Reserve the pinned scroll distance ourselves.
+     * `pinSpacing: true` above already reserves the pin distance: ScrollTrigger
+     * writes it onto the pin-spacer as `padding-bottom`.
      *
-     * ScrollTrigger normally pads its pin-spacer so that content after a
-     * pinned section is pushed down by the pin duration. Here it resolves that
-     * padding to 0 (verified: `padding: 0px` on the spacer even with an
-     * explicit `pinSpacing: true` and a 2000px pin), so while the Work section
-     * is pinned the tech-stack scrolls straight up over the project cards.
-     * Adding the distance as a margin on the spacer reproduces what the pin
-     * spacing should have done, and is re-applied on refresh because
-     * ScrollTrigger rewrites the spacer's inline styles.
+     * There used to be a manual `spacer.style.marginBottom = translateX` here,
+     * added when the spacer was observed resolving to `padding: 0px`. That is
+     * no longer the case, so the margin stacked on top of the padding and every
+     * gap after Work was reserved twice - measured at 390px wide: 661px of
+     * padding plus 661px of margin, i.e. a full extra viewport of dead black
+     * between the last project card and "Digital Footprint" (1323px instead of
+     * 662px, and 389px of needless page height). Removing it leaves the pin
+     * distance correct and the last card still scrolls fully into view.
      */
-    const reservePinSpace = () => {
-      const section = document.querySelector<HTMLElement>(".work-section");
-      const spacer = section?.parentElement;
-      if (spacer && spacer.classList.contains("pin-spacer")) {
-        spacer.style.marginBottom = `${translateX}px`;
-      }
-    };
-    reservePinSpace();
-    ScrollTrigger.addEventListener("refresh", reservePinSpace);
 
     // Clean up (optional, good practice)
     return () => {
-      ScrollTrigger.removeEventListener("refresh", reservePinSpace);
       timeline.kill();
       ScrollTrigger.getById("work")?.kill();
     };
