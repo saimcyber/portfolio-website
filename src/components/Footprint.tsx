@@ -166,6 +166,51 @@ const Footprint = () => {
         </h2>
       </div>
 
+      {/*
+        Summary band. Restates the two facts that land hardest - where the
+        visitor is coming from, and the hash that identifies their machine -
+        before the detail cards break everything down. The repetition is the
+        point: the cards are a table, this is the headline.
+
+        Reads only from fields already on FullReport, so it adds no request
+        and no extra fingerprinting work. The location half degrades on a
+        failed lookup while the fingerprint half keeps working, because that
+        half is computed locally and never depended on the third party.
+      */}
+      <div className="fp-band">
+        <div className="fp-band-status">
+          <span className="fp-band-dot" aria-hidden="true" />
+          <span>{loading ? "Scanning" : "Live"}</span>
+        </div>
+        <div className="fp-band-split">
+          <div className="fp-band-half">
+            <span className="fp-band-label">Coming from</span>
+            <p className="fp-band-value">
+              {loading ? "\u2026" : r.network.ip ?? "lookup unavailable"}
+            </p>
+            <p className="fp-band-sub">
+              {loading
+                ? "\u2026"
+                : [r.network.city, r.network.region, r.network.country]
+                    .filter(Boolean)
+                    .join(", ") ||
+                  (r.network.error ? "location unavailable" : "location unknown")}
+              {!loading && r.network.isp ? ` \u00b7 ${r.network.isp}` : ""}
+            </p>
+          </div>
+          <div className="fp-band-half">
+            <span className="fp-band-label">Your fingerprint</span>
+            <p className="fp-band-value fp-band-hash">
+              {loading ? "\u2026" : r.fingerprint.combinedHash ?? "unavailable"}
+            </p>
+            <p className="fp-band-sub">
+              Derived from your GPU, canvas and audio stack — no cookies
+              involved.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="fp-grid">
         {/* When the IP lookup fails every row here is blank for one reason -
             the lookup - so they say so rather than each blaming the browser
@@ -293,7 +338,7 @@ const Footprint = () => {
           />
         </div>
 
-        <div className="fp-card fp-card-wide">
+        <div className="fp-card fp-card-mid">
           <h4>Fingerprint</h4>
           <Row label="GPU" value={r.fingerprint.webglRenderer} loading={loading} />
           <Row label="Canvas hash" value={r.fingerprint.canvasHash} loading={loading} />

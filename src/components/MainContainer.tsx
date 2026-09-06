@@ -1,4 +1,4 @@
-import { lazy, PropsWithChildren, Suspense, useEffect, useState } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import About from "./About";
 import Career from "./Career";
 import Contact from "./Contact";
@@ -9,34 +9,14 @@ import Navbar from "./Navbar";
 import SocialIcons from "./SocialIcons";
 import Terminal from "./Terminal";
 import WhatIDo from "./WhatIDo";
+import TechStack from "./TechStack";
 import Work from "./Work";
 import setSplitText from "./utils/splitText";
-
-const TechStack = lazy(() => import("./TechStack"));
 
 const MainContainer = ({ children }: PropsWithChildren) => {
   const [isDesktopView, setIsDesktopView] = useState<boolean>(
     window.innerWidth > 1024
   );
-  /**
-   * The tech-stack canvas is a 2.2MB chunk (Rapier physics + its WASM). Mounted
-   * eagerly it parses and initialises during the initial load, which was
-   * stalling the main thread for most of a second and making the loader and
-   * intro stutter. It lives far down the page, so defer it until the visitor
-   * scrolls toward it.
-   */
-  const [showTechStack, setShowTechStack] = useState(false);
-
-  useEffect(() => {
-    if (!isDesktopView || showTechStack) return;
-    const onScroll = () => {
-      if (window.scrollY > window.innerHeight) setShowTechStack(true);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [isDesktopView, showTechStack]);
-
   useEffect(() => {
     const resizeHandler = () => {
       setSplitText();
@@ -74,19 +54,13 @@ const MainContainer = ({ children }: PropsWithChildren) => {
             <div className="section-divider" />
             <Footprint />
             <div className="section-divider" />
-            {/* The placeholder carries the same `.techstack` class so it
-                reserves identical height. The old `<div>Loading....</div>`
-                fallback reserved none, so the page grew by a full viewport
-                when the chunk resolved and every ScrollTrigger measured
-                before that point was left pointing at the wrong offset. */}
-            {isDesktopView &&
-              (showTechStack ? (
-                <Suspense fallback={<div className="techstack"></div>}>
-                  <TechStack />
-                </Suspense>
-              ) : (
-                <div className="techstack"></div>
-              ))}
+            {/* Rendered unconditionally, on every viewport. It used to be
+                desktop-only and lazily mounted behind a scroll threshold,
+                because it was a 2.2MB Rapier physics canvas. Now that it is
+                plain markup there is nothing to defer - and gating it left
+                phones with two adjacent `.section-divider` hairlines and
+                nothing between them. */}
+            <TechStack />
             <div className="section-divider" />
             <Contact />
           </div>

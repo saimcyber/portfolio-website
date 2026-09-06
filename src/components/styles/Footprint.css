@@ -39,6 +39,143 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 18px;
 }
+
+/* ------------------------------------------------------------------ band */
+
+/*
+ * The section's headline. Deliberately the loudest element here: a tinted
+ * panel with an accent hairline along the top, against cards that are flat
+ * #0b080c with a plain border. That contrast is what makes the section read
+ * as a feature rather than a spec table.
+ */
+.fp-band {
+  position: relative;
+  margin-bottom: 34px;
+  padding: 30px 34px 32px;
+  border: 1px solid #4a3a6b;
+  border-radius: 14px;
+  background:
+    radial-gradient(
+      130% 170% at 0% 0%,
+      rgba(194, 164, 255, 0.16),
+      transparent 62%
+    ),
+    #0e0a14;
+  /* Lifts the band off the page so it reads as the section's headline rather
+     than a seventh card. The cards are flat #0b080c with a plain border and
+     no shadow, so this contrast is doing the "highlight" work. */
+  box-shadow: 0 26px 60px -34px rgba(194, 164, 255, 0.5),
+    inset 0 1px 0 0 rgba(194, 164, 255, 0.08);
+  overflow: hidden;
+}
+.fp-band::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accentColor) 35%,
+    var(--accentColor) 65%,
+    transparent
+  );
+  opacity: 0.85;
+}
+
+.fp-band-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 26px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accentColor);
+}
+.fp-band-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--accentColor);
+  animation: fpPulse 2s ease-in-out infinite;
+}
+@keyframes fpPulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(194, 164, 255, 0.45);
+  }
+  50% {
+    opacity: 0.55;
+    box-shadow: 0 0 0 6px rgba(194, 164, 255, 0);
+  }
+}
+/* A steady dot still communicates "live" without the motion. */
+@media (prefers-reduced-motion: reduce) {
+  .fp-band-dot {
+    animation: none;
+  }
+}
+
+.fp-band-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 44px;
+}
+/* Separates "where you are" from "who you are" without adding a border to a
+   half that might be empty. Drops away with the single-column stack. */
+.fp-band-half + .fp-band-half {
+  padding-left: 44px;
+  border-left: 1px solid #2f2640;
+  margin-left: -22px;
+}
+.fp-band-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #6f6480;
+  margin-bottom: 12px;
+}
+.fp-band-value {
+  margin: 0 0 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 30px;
+  line-height: 1.15;
+  font-weight: 500;
+  color: #eae5ec;
+  word-break: break-all;
+}
+.fp-band-hash {
+  color: var(--accentColor);
+  /* The hash is 24 hex characters and has no break opportunities, so it needs
+     to shrink rather than overflow its half of the band. */
+  font-size: 25px;
+}
+.fp-band-sub {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6f6480;
+}
+
+/*
+ * Two spans, not one.
+ *
+ * Four single-width cards in a three-column grid strand the fourth: Network,
+ * Browser and Hardware fill row 1, Preferences lands alone in row 2, and
+ * neither full-width card can fit beside it - so the grid rendered two empty
+ * cells at every width above 1400px. Giving Fingerprint a span of 2 pairs it
+ * with Preferences and closes the hole, leaving WebRTC as the only full-width
+ * card.
+ */
+.fp-card-mid {
+  grid-column: span 2;
+}
 .fp-card-wide {
   grid-column: span 3;
 }
@@ -157,8 +294,18 @@
   .fp-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .fp-card-mid,
   .fp-card-wide {
     grid-column: span 2;
+  }
+}
+
+@media only screen and (max-width: 1400px) {
+  .fp-band-value {
+    font-size: 25px;
+  }
+  .fp-band-hash {
+    font-size: 20px;
   }
 }
 
@@ -166,12 +313,34 @@
   .footprint-section {
     padding: 90px 0px;
   }
+  .fp-band {
+    padding: 24px 22px 26px;
+  }
+  /* Side by side, each half is too narrow for a 24-character hash. */
+  .fp-band-split {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+  .fp-band-half + .fp-band-half {
+    padding-left: 0;
+    margin-left: 0;
+    border-left: none;
+    border-top: 1px solid #2f2640;
+    padding-top: 24px;
+  }
+  .fp-band-value {
+    font-size: 22px;
+  }
+  .fp-band-hash {
+    font-size: 17px;
+  }
   .fp-title {
     font-size: 26px;
   }
   .fp-grid {
     grid-template-columns: 1fr;
   }
+  .fp-card-mid,
   .fp-card-wide {
     grid-column: span 1;
   }

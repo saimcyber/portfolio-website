@@ -50,17 +50,15 @@ Drop `.webp` files into `public/images/` and reference them from the `projects`
 array as `/images/<name>.webp`. Set each project's optional `link` field to its
 repo URL to activate the outward-arrow badge on the card.
 
-### Tech-stack cubes
+### Tech stack
 
-The floating logo cubes read from `imageUrls` in
-`src/components/TechStack.tsx`. Replacement images must be **square**
-(they are mapped onto rounded cubes), around 512x512, and have an **opaque
-background** — the same texture is used as the emissive map, so transparent
-regions glow incorrectly.
-
-There are 22 cubes and the texture list is cycled, so every entry in
-`imageUrls` is guaranteed to appear two or three times. Adding a ninth texture
-changes that distribution but not the cube count.
+The stack section is a five-stage CI/CD pipeline driven by `stackStages` and
+`stackFoundation` in **`src/data/content.ts`**. Each tool carries an `icon`
+string key; `TechStack.tsx` maps those keys onto glyphs from
+`react-icons/si` (Simple Icons), which is already a dependency. Add a tool by
+adding an entry to a stage's `tools` array and, if it needs a new glyph, a
+matching line in the `ICONS` map. A key with no glyph falls back to a dot
+rather than throwing, so content edits can't white-screen the section.
 
 ---
 
@@ -70,25 +68,25 @@ changes that distribution but not the cube count.
   `gsap` package (v3.13+), which bundles every plugin for free since GSAP's
   April 2025 licensing change. No club membership or `gsap-trial` needed.
 - **Desktop vs mobile.** The 1024px width breakpoint is a JavaScript one, not
-  just CSS: below it the 3D character moves inside the landing section and the
-  tech-stack canvas does not mount at all (`MainContainer.tsx`).
-- **The only 3D asset** is `public/models/char_enviorment.hdr`, and only the
-  tech-stack canvas still loads it — the hero scene builds its environment from
-  `<Lightformer>`s instead. Everything else is generated in code, so there are
-  no model downloads. The original encrypted character GLB, its DRACO decoder
-  and the bone data were removed with the character.
+  just CSS: below it the 3D hero moves inside the landing section
+  (`MainContainer.tsx`). The tech-stack section used to be gated on the same
+  check and is now rendered on every viewport.
+- **There are no 3D assets left.** The hero scene builds its environment from
+  `<Lightformer>`s and its geometry in code, so nothing is downloaded. The
+  original encrypted character GLB, its DRACO decoder and the bone data went
+  with the character; `char_enviorment.hdr` went with the tech-stack canvas.
 - **Loading** is gated on the scene mounting plus a first rendered frame plus a
   short floor duration, with an 8s failsafe in `Cluster/Scene.tsx` - without the
   floor the loader would finish instantly and the boot sequence would never be
   readable.
-- **The tech-stack canvas is the heaviest thing on the site** by a wide margin:
-  ~2.2MB raw / ~854KB gzipped, of which about 89% is the Rapier physics engine's
-  WebAssembly binary inlined as base64 by `@dimforge/rapier3d-compat`. It is
-  lazy: desktop only, and not mounted until the visitor has scrolled a full
-  viewport (`MainContainer.tsx`). Anything that reduces that chunk is the single
-  biggest performance lever available.
+- **The tech-stack section used to be the heaviest thing on the site**: a
+  Rapier physics canvas at ~2.2MB raw / ~854KB gzipped, ~89% of it the physics
+  engine's WebAssembly binary inlined as base64. It was replaced by a static
+  pipeline diagram, which removed that chunk entirely and let
+  `@react-three/rapier` and `three-stdlib` be dropped. The remaining 3D cost is
+  the hero scene alone.
 - **Deployment headers** live in `vercel.json` — long-lived immutable caching
-  for `/assets`, `/images` and `/models`, plus `nosniff`, `Referrer-Policy`,
+  for `/assets` and `/images`, plus `nosniff`, `Referrer-Policy`,
   `X-Frame-Options` and a `Permissions-Policy` that keeps `geolocation` enabled
   for the opt-in button in the Digital Footprint section.
 - **`@gsap/react`** is pinned in `package-lock.json` to the public npm registry

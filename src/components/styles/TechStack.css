@@ -1,0 +1,321 @@
+/*
+ * Tech stack, drawn as a CI/CD pipeline.
+ *
+ * Palette deliberately matches Terminal.css and Footprint.css so the three
+ * "system" sections read as one family: panel #0b080c, body #b9aecb, muted
+ * #6f6480, hairline #2f2640, accent var(--accentColor).
+ *
+ * Replaces a full-viewport WebGL canvas, so the section is now sized by its
+ * own content instead of reserving `height: var(--vh)` and leaving most of it
+ * empty.
+ */
+
+.techstack {
+  width: 100%;
+  margin: auto;
+  padding: 120px 0 110px;
+}
+
+.stack-inner {
+  width: 1300px;
+  max-width: calc(100% - 30px);
+  margin: 0 auto;
+}
+
+/* ------------------------------------------------------------------ head */
+
+.stack-head {
+  margin-bottom: 72px;
+}
+.stack-eyebrow {
+  font-size: 14px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accentColor);
+  font-weight: 400;
+  margin: 0 0 16px;
+}
+.stack-title {
+  font-size: 42px;
+  line-height: 1.2;
+  font-weight: 500;
+  margin: 0;
+  max-width: 18ch;
+}
+.stack-title span {
+  color: var(--accentColor);
+}
+
+/* ------------------------------------------------------------------ flow */
+
+.stack-flow {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0 26px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * One continuous rail behind all five stages.
+ *
+ * Drawn on the container rather than as a border on each stage: a per-stage
+ * border would be broken by the 26px column gap, which reads as five separate
+ * cards rather than one flow. Fades at both ends so it doesn't terminate in a
+ * hard stop.
+ */
+.stack-flow::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #3a2f52 12%,
+    #3a2f52 88%,
+    transparent
+  );
+}
+
+.stack-stage {
+  position: relative;
+  padding-top: 34px;
+}
+
+/* The node sitting on the rail. */
+.stack-stage::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: var(--backgroundColor);
+  border: 1px solid var(--accentColor);
+  box-sizing: border-box;
+}
+/* The last stage is the payoff - fill its node so the eye lands there. */
+.stack-stage:last-child::before {
+  background-color: var(--accentColor);
+}
+
+.stack-index {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: #6f6480;
+  margin-bottom: 10px;
+}
+.stack-stage h4 {
+  margin: 0 0 8px;
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #eae5ec;
+}
+.stack-stage-head p {
+  margin: 0 0 24px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6f6480;
+  max-width: 22ch;
+}
+
+/* ----------------------------------------------------------------- tools */
+
+.stack-tools {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stack-tool {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid #241d31;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.012);
+  font-size: 13.5px;
+  color: #b9aecb;
+  transition: border-color 0.25s, color 0.25s, background-color 0.25s;
+}
+.stack-tool svg {
+  flex: none;
+  font-size: 17px;
+  color: #8f83a5;
+  transition: color 0.25s;
+}
+.stack-tool:hover {
+  border-color: #4b3a6b;
+  background-color: rgba(194, 164, 255, 0.05);
+  color: #eae5ec;
+}
+.stack-tool:hover svg {
+  color: var(--accentColor);
+}
+
+/* Fallback mark for a tool whose icon key has no glyph in the map. */
+.stack-dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  margin: 0 4px;
+  border-radius: 50%;
+  background-color: #8f83a5;
+}
+
+/* ------------------------------------------------------------ foundation */
+
+.stack-foundation {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  margin-top: 64px;
+  padding-top: 30px;
+  border-top: 1px solid #241d31;
+}
+.stack-foundation-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #6f6480;
+  flex: none;
+}
+.stack-foundation ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.stack-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 15px;
+  border: 1px solid #2f2640;
+  border-radius: 100px;
+  font-size: 13px;
+  color: #b9aecb;
+  transition: border-color 0.25s, color 0.25s;
+}
+.stack-chip svg {
+  font-size: 15px;
+  color: #8f83a5;
+  transition: color 0.25s;
+}
+.stack-chip:hover {
+  border-color: var(--accentColor);
+  color: #eae5ec;
+}
+.stack-chip:hover svg {
+  color: var(--accentColor);
+}
+
+/* ----------------------------------------------------------- responsive */
+
+@media only screen and (max-width: 1600px) {
+  .stack-inner {
+    width: 1200px;
+    max-width: calc(100% - 160px);
+  }
+}
+
+@media only screen and (max-width: 1400px) {
+  .stack-inner {
+    width: 900px;
+  }
+  .stack-title {
+    font-size: 34px;
+  }
+  /* Five columns inside 900px leaves ~150px a stage, which wraps every tool
+     name. Three across reads far better at this width. */
+  .stack-flow {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 44px 26px;
+  }
+  .stack-flow::before {
+    display: none;
+  }
+  .stack-stage {
+    padding-top: 26px;
+  }
+}
+
+@media only screen and (max-width: 900px) {
+  .techstack {
+    padding: 80px 0 70px;
+  }
+  .stack-inner {
+    width: 500px;
+    max-width: var(--cWidth);
+  }
+  .stack-head {
+    margin-bottom: 48px;
+  }
+  .stack-title {
+    font-size: 26px;
+    max-width: none;
+  }
+  .stack-flow {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 36px 20px;
+  }
+  .stack-stage-head p {
+    max-width: none;
+  }
+  .stack-foundation {
+    margin-top: 48px;
+  }
+}
+
+@media only screen and (max-width: 560px) {
+  /* Single column, and the rail returns as a vertical spine down the left so
+     the flow still reads as a sequence rather than a stack of unrelated
+     groups. */
+  .stack-flow {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .stack-flow::before {
+    display: block;
+    top: 4px;
+    left: 4px;
+    width: 1px;
+    height: calc(100% - 8px);
+    background: linear-gradient(180deg, transparent, #3a2f52 4%, #3a2f52 96%, transparent);
+  }
+  .stack-stage {
+    padding-top: 0;
+    padding-left: 26px;
+    padding-bottom: 34px;
+  }
+  .stack-stage:last-child {
+    padding-bottom: 0;
+  }
+  .stack-stage::before {
+    top: 4px;
+  }
+  .stack-stage h4 {
+    font-size: 17px;
+  }
+  .stack-stage-head p {
+    margin-bottom: 16px;
+  }
+}

@@ -120,3 +120,83 @@ export const skillCards: SkillCard[] = [
     ],
   },
 ];
+
+/* ------------------------------------------------------------------ stack */
+
+/**
+ * The tech stack, arranged as the pipeline it actually forms rather than as a
+ * flat logo wall: code moves left to right through the five stages, and the
+ * foundation strip underneath carries the platform tools that aren't a stage
+ * of their own.
+ *
+ * `icon` is a string key, not a component, so this file stays free of React
+ * imports and stays editable through WEBSITE-TEXT.md. TechStack.tsx maps each
+ * key onto a react-icons/si glyph; a key with no entry in that map renders as
+ * a labelled dot rather than throwing.
+ */
+export interface StackTool {
+  name: string;
+  icon: string;
+}
+
+export interface StackStage {
+  name: string;
+  /** One line under the stage name saying what happens here. */
+  summary: string;
+  tools: StackTool[];
+}
+
+export const stackStages: StackStage[] = [
+  {
+    name: "Source",
+    summary: "Version control and review",
+    tools: [
+      { name: "Git", icon: "git" },
+      { name: "GitHub", icon: "github" },
+    ],
+  },
+  {
+    name: "Build",
+    summary: "Containerise and automate",
+    tools: [
+      { name: "Docker", icon: "docker" },
+      { name: "GitHub Actions", icon: "actions" },
+      { name: "Jenkins", icon: "jenkins" },
+    ],
+  },
+  {
+    name: "Secure",
+    summary: "Scan before anything ships",
+    tools: [
+      { name: "Trivy", icon: "trivy" },
+      { name: "SonarQube", icon: "sonarqube" },
+    ],
+  },
+  {
+    name: "Ship",
+    summary: "Orchestrate and release",
+    tools: [
+      { name: "Kubernetes", icon: "kubernetes" },
+      { name: "Helm", icon: "helm" },
+      { name: "Argo CD", icon: "argo" },
+    ],
+  },
+  {
+    name: "Observe",
+    summary: "Measure and alert",
+    tools: [
+      { name: "Prometheus", icon: "prometheus" },
+      { name: "Grafana", icon: "grafana" },
+    ],
+  },
+];
+
+/** Platform tools that underpin every stage rather than belonging to one. */
+export const stackFoundation: StackTool[] = [
+  { name: "AWS", icon: "aws" },
+  { name: "Terraform", icon: "terraform" },
+  { name: "Ansible", icon: "ansible" },
+  { name: "Linux", icon: "linux" },
+  { name: "Nginx", icon: "nginx" },
+  { name: "Python", icon: "python" },
+];

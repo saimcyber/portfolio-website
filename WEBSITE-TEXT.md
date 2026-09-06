@@ -1,6 +1,6 @@
 # saimzaib.tech — All Website Text
 
-All 136 pieces of editable text on the site, in the order a visitor meets
+All 159 pieces of editable text on the site, in the order a visitor meets
 them. Edit the text, send this file back, and I'll apply it to the code.
 
 Two things are deliberately left out: the live values in the Digital Footprint
@@ -808,6 +808,53 @@ Where: Big heading, second part (purple)
 about you.
 ```
 
+### Highlight band
+
+A new band above the cards, showing where the visitor is connecting from and
+the fingerprint hash that identifies their machine. The values themselves are
+read live and can't be edited - only these labels.
+
+```
+id: footprint.band.live
+Where: Small pulsing status label at the top left of the band, once the scan
+       has finished
+```
+```
+Live
+```
+
+```
+id: footprint.band.scanning
+Where: Same spot, while the scan is still running
+```
+```
+Scanning
+```
+
+```
+id: footprint.band.label.location
+Where: Label above the visitor's IP address, left half of the band
+```
+```
+Coming from
+```
+
+```
+id: footprint.band.label.fingerprint
+Where: Label above the hash, right half of the band
+```
+```
+Your fingerprint
+```
+
+```
+id: footprint.band.caption
+Where: Small grey line under the hash
+```
+```
+Derived from your GPU, canvas and audio stack — no cookies involved.
+```
+
 ### Card headings
 
 ```
@@ -1020,41 +1067,188 @@ Location request denied
 
 # 10. Tech Stack
 
-The pile of tumbling cubes.
+Redesigned as a five-stage CI/CD pipeline. The old tumbling-cubes canvas and
+its eight cube labels are gone, so the ids in this section have changed.
 
 ```
-id: techstack.heading
-Where: Large heading above the cubes
-Notes: Currently has a leading space in the code — I'll tidy that
+id: stack.eyebrow
+Where: Small purple label above the big heading
 ```
 ```
-My Techstack
-```
-
-### Cube labels
-
-The word printed on each cube face. Changing one of these means I regenerate
-that cube's image, not just the text — tell me the brand colour if you want a
-new one, or I'll pick the official one.
-
-```
-id: techstack.cubes
-Where: Printed across the faces of the floating cubes
-Notes: One per line. There are 22 cubes and 8 designs, so each appears about
-       three times. Add or remove lines freely.
-```
-```
-DOCKER
-K8S
-TERRAFORM
-AWS
-ACTIONS
-LINUX
-PROMETHEUS
-GRAFANA
+My Stack
 ```
 
----
+```
+id: stack.title.1
+Where: Big heading, first part (white)
+```
+```
+Commit to production,
+```
+
+```
+id: stack.title.2
+Where: Big heading, second part (purple)
+```
+```
+one pipeline.
+```
+
+### The five stages
+
+Each stage is a column on desktop and a numbered step down the left on mobile.
+The 01-05 numbers are generated from the order, so you don't edit them.
+
+> **Tool names are tied to their logos.** Renaming a tool keeps its existing
+> glyph; adding a brand-new tool needs a matching icon, which I'll add. A tool
+> with no icon falls back to a plain dot rather than breaking the page.
+
+```
+id: stack.stage.1.name
+Where: Stage heading, first column
+Notes: Max ~10 characters - it sits above a fixed-width column
+```
+```
+Source
+```
+
+```
+id: stack.stage.1.summary
+Where: Grey line under the stage name
+Notes: Max ~30 characters, wraps to two lines beyond that
+```
+```
+Version control and review
+```
+
+```
+id: stack.stage.1.tools
+Where: The pills under stage 1
+Notes: Comma-separated, one pill each
+```
+```
+Git, GitHub
+```
+
+```
+id: stack.stage.2.name
+Where: Stage heading, second column
+```
+```
+Build
+```
+
+```
+id: stack.stage.2.summary
+Where: Grey line under the stage name
+```
+```
+Containerise and automate
+```
+
+```
+id: stack.stage.2.tools
+Where: The pills under stage 2
+```
+```
+Docker, GitHub Actions, Jenkins
+```
+
+```
+id: stack.stage.3.name
+Where: Stage heading, third column
+```
+```
+Secure
+```
+
+```
+id: stack.stage.3.summary
+Where: Grey line under the stage name
+```
+```
+Scan before anything ships
+```
+
+```
+id: stack.stage.3.tools
+Where: The pills under stage 3
+```
+```
+Trivy, SonarQube
+```
+
+```
+id: stack.stage.4.name
+Where: Stage heading, fourth column
+```
+```
+Ship
+```
+
+```
+id: stack.stage.4.summary
+Where: Grey line under the stage name
+```
+```
+Orchestrate and release
+```
+
+```
+id: stack.stage.4.tools
+Where: The pills under stage 4
+```
+```
+Kubernetes, Helm, Argo CD
+```
+
+```
+id: stack.stage.5.name
+Where: Stage heading, fifth column. Its node on the connector line is filled
+       rather than hollow, so this is where the eye lands.
+```
+```
+Observe
+```
+
+```
+id: stack.stage.5.summary
+Where: Grey line under the stage name
+```
+```
+Measure and alert
+```
+
+```
+id: stack.stage.5.tools
+Where: The pills under stage 5
+```
+```
+Prometheus, Grafana
+```
+
+### Foundation strip
+
+The row of rounded chips below the pipeline, for platform tools that underpin
+every stage rather than belonging to one.
+
+```
+id: stack.foundation.label
+Where: Small grey label at the left of the chip row
+Notes: Two or three words
+```
+```
+Runs on
+```
+
+```
+id: stack.foundation.tools
+Where: The chips themselves
+Notes: Comma-separated. Same icon caveat as the stage tools above.
+```
+```
+AWS, Terraform, Ansible, Linux, Nginx, Python
+```
 
 # 11. Contact & footer
 
@@ -1436,7 +1630,7 @@ text edit — just tell me what you want and I'll do it.
 | **Share image** | The picture on the card when your link is pasted into LinkedIn or WhatsApp. Currently has your name, "DevOps & Cloud Engineer", "I automate and secure infrastructure at scale", and five tags baked into it as a picture. | Editing `meta.share.*` above will **not** change this — it's a PNG. Tell me the new wording and I'll regenerate it. |
 | **Browser tab icon** | The little square in the browser tab — currently "SZ" in purple. | Follows `personal.initials`, but needs the icon regenerating. Tell me and I'll do it. |
 | **Project images** | All three project cards currently show a grey placeholder. | Send me the screenshots. |
-| **Tech stack cubes** | The floating cubes. | See `techstack.cubes` above — each label is a generated image. |
+| **Tech stack logos** | The glyphs on the pipeline pills and foundation chips. | Drawn from the Simple Icons set already bundled with the site. Renaming a tool keeps its glyph; a brand-new tool needs one adding, which I'll do. |
 | **Your CV** | The Resume links in the nav rail, Contact section, and the shell's `resume` command. | Send me the new PDF and I'll swap the file. |
 | **Live browser data** | Every value on the right-hand side of the Digital Footprint rows. | Read from the visitor's own browser at page load. Not editable — only the labels are. |
 | **Cluster node names** | The `ip-10-0-x-x` names in `kubectl get nodes`. | Generated randomly on each page load to look like real AWS nodes. |
