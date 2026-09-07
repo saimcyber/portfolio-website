@@ -1,217 +1,234 @@
+/*
+ * Work / Projects.
+ *
+ * Rebuilt as a plain vertical stack of showcase cards - the old layout
+ * pinned the whole section full-screen and scroll-jacked vertical input
+ * into a horizontal `x` transform (GSAP ScrollTrigger + pin + translateX),
+ * which read as the page "dragging left" and never had a real, swipeable
+ * horizontal path on mobile in the first place (the same pin/translate
+ * effect ran unconditionally on every viewport). Plain vertical scroll
+ * removes that whole bug class by construction - it behaves identically on
+ * every device because there's no custom scroll mechanism left to break.
+ *
+ * Card panel recipe matches the site's other "system" sections
+ * (Footprint.css/TechStack.css): #0b080c panel, #2f2640 hairline, chip/pill
+ * shapes reused from .stack-tool/.stack-chip and .fp-gps-btn.
+ */
+
+.work-section {
+  padding: 140px 0 110px;
+}
+
+.work-head {
+  text-align: center;
+  margin-bottom: 64px;
+}
+.work-eyebrow {
+  font-size: 14px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accentColor);
+  font-weight: 400;
+  margin: 0 0 16px;
+}
 .work-section h2 {
-  /* Was 100px, stacking on top of Career's own 250px margin-bottom for a
-     combined ~350px dead zone - trimmed alongside that fix. */
-  margin-top: 60px;
-  font-size: 70px;
+  font-size: 60px;
   font-weight: 500;
+  margin: 0;
 }
 .work-section h2 > span {
   color: var(--accentColor);
 }
-.work-section {
-  transition: 0s;
-  height: 100vh;
-  box-sizing: border-box;
-  will-change: transform;
-}
-.work-container {
-  margin: auto;
+
+.work-list {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  align-content: stretch;
-}
-.work-flex {
-  width: 100%;
-  display: flex;
-  height: 100%;
-  margin-left: -80px;
-  padding-right: 120px;
-  position: relative;
-}
-.work-box {
-  padding: 80px;
-  display: flex;
-  flex-direction: column;
-  width: 600px;
-  box-sizing: border-box;
-  border-right: 1px solid #363636;
-  flex-shrink: 0;
-  gap: 50px;
-  justify-content: start;
-}
-.work-flex .work-box:nth-child(even) {
-  flex-direction: column-reverse;
-}
-.work-flex::before,
-.work-flex::after {
-  content: "";
-  width: calc(50000vw);
-  height: 1px;
-  background-color: #363636;
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-}
-.work-flex::after {
-  top: 100%;
-}
-.work-title {
-  justify-content: space-between;
-  display: flex;
-  width: 100%;
-  margin-bottom: 20px;
-}
-.work-title > div {
-  text-align: right;
-}
-.work-title h3 {
-  font-size: 50px;
-  line-height: 50px;
-  margin: 0;
-  font-weight: 600;
+  gap: 40px;
 }
 
-.work-info h4 {
-  font-size: 18px;
-  font-weight: 400;
-  margin: 0;
+.work-card {
+  display: grid;
+  grid-template-columns: 55% 1fr;
+  background-color: #0b080c;
+  border: 1px solid #2f2640;
+  border-radius: 16px;
+  overflow: hidden;
 }
-.work-info p {
-  font-weight: 200;
-  color: #adacac;
-  margin: 0;
-  margin-top: 3px;
-}
-.work-info > p {
-  width: 90%;
-}
-.work-image {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-}
-.work-image-in {
+
+/* ------------------------------------------------------------------ media */
+
+.work-card-media {
   position: relative;
+}
+.work-card-media .work-image,
+.work-card-media .work-image-in {
+  width: 100%;
+  height: 100%;
+}
+.work-card-media .work-image-in {
+  display: block;
+  position: relative;
+  aspect-ratio: 16 / 10;
+}
+.work-card-media img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+.work-card:hover .work-card-media img {
+  transform: scale(1.03);
+}
+.work-card-media a:hover {
+  color: inherit;
 }
 .work-link {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  bottom: 16px;
+  right: 16px;
   background-color: var(--backgroundColor);
-  width: 50px;
-  border-radius: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 25px;
-  box-shadow: 0px 0px 10px 0px rgba(255, 255, 255, 0.5),
+  font-size: 22px;
+  box-shadow: 0px 0px 10px 0px rgba(255, 255, 255, 0.3),
     inset 0px 0px 10px 0px #393939;
-  transition: 0.3s;
   opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 1;
 }
-.work-image a:hover {
-  color: inherit;
-}
-.work-image a:hover .work-link {
+.work-card-media a:hover .work-link {
   opacity: 1;
 }
-.work-image video {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background-color: #000;
-  object-fit: cover;
+
+/* ------------------------------------------------------------------- body */
+
+.work-card-body {
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
 }
-.work-image img {
-  max-width: 100%;
-  max-height: 350px;
+.work-index {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #6f6480;
+  margin-bottom: 14px;
 }
-@media only screen and (max-height: 900px) {
-  .work-image img {
-    max-height: 250px;
-  }
-  .work-box {
-    padding-top: 40px;
-    padding-bottom: 40px;
-  }
-  .work-section h2 {
-    font-size: 60px;
-    margin-bottom: 30px;
-    margin-top: 70px;
-  }
+.work-name {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0;
 }
+.work-category {
+  color: var(--accentColor);
+  font-size: 15px;
+  font-weight: 400;
+  margin: 8px 0 0;
+}
+
+.work-tools-label {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #6f6480;
+  font-weight: 500;
+  margin: 32px 0 14px;
+}
+.work-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.work-tool-chip {
+  padding: 7px 14px;
+  border: 1px solid #241d31;
+  border-radius: 100px;
+  background-color: rgba(255, 255, 255, 0.012);
+  font-size: 13px;
+  color: #b9aecb;
+  transition: border-color 0.25s, color 0.25s;
+}
+.work-card:hover .work-tool-chip {
+  border-color: #4b3a6b;
+}
+
+.work-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  margin-top: 32px;
+  padding: 12px 26px;
+  border-radius: 100px;
+  border: 1px solid #4b3a6b;
+  background-color: #1c1526;
+  color: #eae5ec;
+  font-size: 14px;
+  font-weight: 500;
+  transition: border-color 0.25s, color 0.25s;
+}
+.work-cta:hover {
+  border-color: var(--accentColor);
+  color: var(--accentColor);
+}
+
+/* ----------------------------------------------------------- responsive */
+
 @media only screen and (max-width: 1400px) {
-  .work-title h3 {
-    font-size: 35px;
-  }
-  .work-info p {
-    font-size: 13px;
-  }
-  .work-info h4 {
-    font-size: 15px;
-  }
-  .work-box {
-    width: 450px;
-    padding: 50px;
-  }
-  .work-flex {
-    margin-left: -50px;
-    padding-right: 75px;
-  }
   .work-section h2 {
-    font-size: 50px;
+    font-size: 48px;
   }
-}
-/* This block was a second `max-width: 1400px` query, identical to the one
-   above it, so its 350px/30px values simply overrode the 450px/50px ones and
-   the intermediate step never existed - cards dropped straight from 600px to
-   350px the moment the viewport crossed 1400. Moved to the narrower breakpoint
-   it was clearly meant for. */
-@media only screen and (max-width: 1100px) {
-  .work-box {
-    width: 350px;
-    padding: 30px;
+  .work-name {
+    font-size: 24px;
   }
-  .work-flex {
-    margin-left: -30px;
-    padding-right: 45px;
+  .work-card-body {
+    padding: 36px;
   }
 }
 
-@media only screen and (max-height: 650px) {
-  .work-image img {
-    max-height: 200px;
+@media only screen and (max-width: 900px) {
+  .work-section {
+    padding: 100px 0 80px;
+  }
+  .work-head {
+    margin-bottom: 48px;
   }
   .work-section h2 {
-    font-size: 40px;
-    margin-bottom: 20px;
+    font-size: 36px;
   }
-  .work-box {
-    gap: 20px;
+  .work-card {
+    grid-template-columns: 1fr;
+  }
+  .work-card-media .work-image-in {
+    aspect-ratio: 16 / 10;
+  }
+  .work-card-body {
+    padding: 28px;
+  }
+  .work-tools-label {
+    margin-top: 24px;
   }
 }
-/* @media only screen and (max-width: 900px) {
-  .work-image img {
-    max-height: 200px;
-  }
+
+@media only screen and (max-width: 600px) {
   .work-section h2 {
-    font-size: 40px;
-    margin-bottom: 20px;
+    font-size: 28px;
   }
-  .work-box {
-    gap: 20px;
+  .work-name {
+    font-size: 20px;
   }
-} */
-@media only screen and (max-width: 1025px) {
-  .work-container {
-    align-content: normal;
+  .work-card-body {
+    padding: 22px;
   }
-  .work-flex {
-    height: auto;
+  .work-cta {
+    align-self: stretch;
+    justify-content: center;
   }
 }
