@@ -33,7 +33,7 @@ const Contact = () => {
               data-cursor="disable"
               className="contact-social"
             >
-              Github <MdArrowOutward />
+              GitHub <MdArrowOutward />
             </a>
             <a
               href={personal.linkedin}
@@ -42,7 +42,7 @@ const Contact = () => {
               data-cursor="disable"
               className="contact-social"
             >
-              Linkedin <MdArrowOutward />
+              LinkedIn <MdArrowOutward />
             </a>
             <a
               href={`mailto:${personal.email}`}

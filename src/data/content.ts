@@ -18,7 +18,7 @@ export const personal = {
 /** About-section copy. Kept short on purpose: below 1025px the type is large
  *  and fixed, so a long paragraph runs off the bottom of the viewport. */
 export const aboutText =
-  "I build and secure the infrastructure that ships software — Kubernetes, Terraform, and CI/CD pipelines that scan before they deploy. Cyber Security undergrad and AWS community lead in Islamabad.";
+  "I build and secure the infrastructure that ships software: Kubernetes, Terraform, and CI/CD pipelines that scan before they deploy. Cyber Security undergrad and AWS community lead in Islamabad.";
 
 export interface CareerEntry {
   role: string;
@@ -33,21 +33,21 @@ export const careerData: CareerEntry[] = [
     organization: "FAST NUCES, Islamabad",
     period: "2024",
     description:
-      "Undergraduate degree in Cyber Security, building the foundation behind a DevSecOps approach to infrastructure: secure network design, least-privilege access, vulnerability assessment and incident response applied to cloud and container platforms.",
+      "Undergraduate degree in Cyber Security. Secure network design, least privilege access, vulnerability assessment and incident response, which I apply to cloud and container platforms rather than to networks alone.",
   },
   {
-    role: "DevSecOps Officer",
-    organization: "Google Developer Groups on Campus, FAST Islamabad",
-    period: "2025",
+    role: "Technical Team Member",
+    organization: "Cyber Space Legion, FAST Islamabad",
+    period: "2024",
     description:
-      "Implemented CI/CD workflows and containerized applications using Docker and GitHub Actions for internal projects and community events, standardizing the build-and-deploy process across teams. Automated recurring deployment and environment-setup tasks with Infrastructure as Code, replacing manual steps with repeatable pipelines.",
+      "Worked on the technical side of the campus security society, running hands-on vulnerability assessments and helping members turn classroom theory into practical security work.",
   },
   {
-    role: "AWS Community Leader",
-    organization: "AWS Student Builder Community, FAST Islamabad",
+    role: "President & Community Leader",
+    organization: "AWS Student Builders Community, FAST Islamabad",
     period: "NOW",
     description:
-      "Design and lead hands-on workshops on AWS core services, CI/CD pipelines and Infrastructure as Code, training students to deploy cloud-based projects end-to-end. Mentor peers on Docker, Kubernetes and CI/CD automation, guiding them from tutorials to deploying real containerized projects.",
+      "Lead the AWS student community on campus. I design and run hands-on workshops on AWS core services, CI/CD and Infrastructure as Code, and mentor members through deploying real containerized projects with Docker and Kubernetes.",
   },
 ];
 
@@ -62,19 +62,19 @@ export interface Project {
 export const projects: Project[] = [
   {
     name: "SecureKubeOps Pipeline",
-    category: "Cloud Engineering",
+    category: "Kubernetes & CI/CD Security",
     tools: "GitHub Actions, Docker, Kubernetes, Minikube, Trivy, Prometheus, Grafana",
     image: "/images/placeholder.webp",
   },
   {
     name: "AwareNet Platform",
-    category: "DevSecOps",
-    tools: "Docker, Microservices, API Gateway, JWT, RBAC, Postman",
+    category: "Containerized Microservices",
+    tools: "Docker, Python, API Gateway, JWT, RBAC",
     image: "/images/placeholder.webp",
   },
   {
     name: "AWS Cloud Automation",
-    category: "Infrastructure as Code",
+    category: "Infrastructure as Code on AWS",
     tools: "Terraform, EC2, Lambda, RDS, CloudWatch, IAM, VPC",
     image: "/images/placeholder.webp",
   },
@@ -97,17 +97,16 @@ export const skillCards: SkillCard[] = [
       "Terraform",
       "AWS",
       "GitHub Actions",
-      "Jenkins",
       "Helm",
-      "Ansible",
-      "GitOps",
+      "Linux",
       "Python",
+      "Bash",
     ],
   },
   {
     title: "SECURE",
     description:
-      "Security belongs inside the pipeline, not bolted on after it. I scan images before they ship and keep clusters observable.",
+      "Security works when it lives inside the pipeline. I scan container images before they ship and keep clusters observable enough to catch what gets through.",
     tags: [
       "Trivy",
       "Prometheus",
@@ -115,7 +114,6 @@ export const skillCards: SkillCard[] = [
       "RBAC",
       "SAST/DAST",
       "Linux",
-      "Nginx",
       "Vulnerability Assessment",
     ],
   },

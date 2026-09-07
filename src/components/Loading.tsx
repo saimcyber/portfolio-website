@@ -11,15 +11,15 @@ import Marquee from "react-fast-marquee";
  * instead of drifting out of sync with the percentage.
  */
 const BOOT_LINES: { at: number; text: string; kind?: "ok" | "tip" }[] = [
-  { at: 3, text: "$ docker pull registry/base:alpine" },
-  { at: 14, text: "✓ layers verified", kind: "ok" },
+  { at: 3, text: "$ docker build -t registry/portfolio:latest ." },
+  { at: 14, text: "✓ image built, 6 layers cached", kind: "ok" },
   { at: 26, text: "$ terraform init && terraform plan" },
   { at: 38, text: "✓ 12 to add, 0 to change, 0 to destroy", kind: "ok" },
   { at: 50, text: "$ trivy image --severity HIGH,CRITICAL" },
   { at: 63, text: "✓ 0 vulnerabilities found", kind: "ok" },
   { at: 75, text: "$ kubectl apply -f k8s/" },
   { at: 88, text: "✓ deployment.apps/portfolio configured", kind: "ok" },
-  { at: 97, text: "✓ rollout complete", kind: "ok" },
+  { at: 97, text: "✓ rollout complete in 8s", kind: "ok" },
   { at: 100, text: "tip: press ~ anywhere for a shell", kind: "tip" },
 ];
 
@@ -116,7 +116,7 @@ const Loading = ({ percent }: { percent: number }) => {
             <i className="boot-dot"></i>
             <i className="boot-dot"></i>
             <i className="boot-dot"></i>
-            <span>saim@portfolio — deploy</span>
+            <span>saim@portfolio:~/deploy</span>
           </div>
           <div className="boot-body">
             {visibleLines.map((line, i) => (

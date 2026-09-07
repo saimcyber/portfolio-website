@@ -364,15 +364,15 @@ const Footprint = () => {
             <p className="fp-note">unsupported</p>
           ) : !r.webrtc.localCandidate ? (
             <p className="fp-note fp-good">
-              ✓ No host candidate gathered — nothing leaked
+              ✓ No host candidate gathered, nothing leaked
             </p>
           ) : r.webrtc.mdnsObfuscated ? (
             <p className="fp-note fp-good">
-              ✓ Masked — <span className="fp-hash">{r.webrtc.localCandidate}</span>
+              ✓ Masked: <span className="fp-hash">{r.webrtc.localCandidate}</span>
             </p>
           ) : (
             <p className="fp-note fp-warn">
-              Exposed — <span className="fp-hash">{r.webrtc.localCandidate}</span>
+              Exposed: <span className="fp-hash">{r.webrtc.localCandidate}</span>
             </p>
           )}
         </div>

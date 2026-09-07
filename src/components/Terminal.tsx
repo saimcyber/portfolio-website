@@ -155,7 +155,7 @@ const Terminal = () => {
         case "whoami":
           push([
             { text: `${personal.fullName}`, kind: "ok" },
-            { text: "DevOps & Cloud Engineer — Kubernetes, Terraform, CI/CD." },
+            { text: "DevOps and Cloud Engineer. Kubernetes, Terraform, CI/CD." },
             { text: "Cyber Security undergrad at FAST NUCES, Islamabad." },
           ]);
           break;
@@ -305,7 +305,7 @@ const Terminal = () => {
               <i className="term-dot"></i>
               <i className="term-dot"></i>
               <i className="term-dot"></i>
-              <span>{personal.initials.toLowerCase()}@portfolio — zsh</span>
+              <span>{personal.initials.toLowerCase()}@portfolio:~ zsh</span>
               <button
                 className="term-close"
                 onClick={() => setOpen(false)}

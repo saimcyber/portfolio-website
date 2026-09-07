@@ -185,7 +185,7 @@ export function getBrowserInfo(): BrowserInfo {
         ? Boolean((navigator as unknown as { globalPrivacyControl: boolean }).globalPrivacyControl)
         : "unsupported",
     cookiesEnabled: navigator.cookieEnabled,
-    referrer: document.referrer || "(direct visit — no referrer)",
+    referrer: document.referrer || "(direct visit, no referrer)",
   };
 }
 
