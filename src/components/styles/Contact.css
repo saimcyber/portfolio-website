@@ -1,92 +1,192 @@
+/*
+ * Footer / Contact.
+ *
+ * Rebuilt as one centered focal column instead of three loosely spaced
+ * flex columns stretched across the page's wide .section-container - that
+ * left big dead gaps between short bits of content and no visual treatment
+ * tying it to the rest of the page. Palette and component recipes below are
+ * lifted directly from the site's other "system" sections (Footprint,
+ * TechStack) so the footer reads as the same family: panel hairline
+ * #2f2640/#241d31, monospace micro-copy, eyebrow+title heading, accent
+ * var(--accentColor), and the one pill-button shape already established by
+ * Footprint's GPS button.
+ */
+
 .contact-section {
-  margin: auto;
-  padding-bottom: 100px;
-  margin-top: 100px;
+  width: 100%;
+  padding: 140px 0 90px;
 }
-.contact-section h3 {
-  font-size: 60px;
-  font-weight: 400;
+
+.contact-inner {
+  max-width: 760px;
+  width: calc(100% - 40px);
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------- heading */
+
+.contact-eyebrow {
+  font-size: 14px;
+  letter-spacing: 4px;
   text-transform: uppercase;
-  margin: 0;
-}
-.contact-flex {
-  display: flex;
-  justify-content: space-between;
-}
-.contact-flex h4 {
-  font-weight: 500;
-  margin: 0;
-  opacity: 0.6;
-}
-.contact-box {
-  display: flex;
-  flex-direction: column;
-}
-.contact-flex p {
-  margin-top: 10px;
-  margin-bottom: 20px;
-}
-a.contact-social {
-  font-size: 25px;
-  border-bottom: 1px solid #ccc;
-}
-.contact-box h2 {
+  color: var(--accentColor);
   font-weight: 400;
-  font-size: 23px;
-  margin: 0;
+  margin: 0 0 16px;
 }
-.contact-box h2 > span {
+.contact-title {
+  font-size: 42px;
+  line-height: 1.2;
+  font-weight: 500;
+  margin: 0 0 44px;
+}
+
+/* ------------------------------------------------------------------ CTA */
+
+.contact-email {
+  display: inline-block;
+  font-size: 44px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--accentColor);
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 6px;
+  transition: text-decoration-color 0.25s, color 0.25s;
+}
+.contact-email:hover {
+  color: #eae5ec;
+  text-decoration-color: currentColor;
+}
+
+/* -------------------------------------------------------------- meta row */
+
+.contact-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 28px;
+  font-size: 15px;
+  color: #b9aecb;
+}
+.contact-dot {
+  color: #4b3a6b;
+}
+.contact-resume-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 10px;
+  padding: 10px 22px;
+  border-radius: 100px;
+  border: 1px solid #4b3a6b;
+  background-color: #1c1526;
+  color: #eae5ec;
+  font-size: 14px;
+  font-weight: 500;
+  transition: border-color 0.25s, color 0.25s;
+}
+.contact-resume-btn:hover {
+  border-color: var(--accentColor);
   color: var(--accentColor);
 }
-.contact-box h5 {
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 20px;
+
+/* ------------------------------------------------------------- icon row */
+
+.contact-icons {
   display: flex;
-  gap: 10px;
-  opacity: 0.5;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 36px;
 }
-@media only screen and (max-width: 1600px) {
-  .contact-section h3 {
-    font-size: 50px;
+.contact-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid #2f2640;
+  color: #b9aecb;
+  font-size: 18px;
+  transition: border-color 0.25s, color 0.25s;
+}
+.contact-icon-btn:hover {
+  border-color: var(--accentColor);
+  color: var(--accentColor);
+}
+
+/* ----------------------------------------------------------- closing bar */
+
+.contact-bottom {
+  margin-top: 64px;
+  padding-top: 28px;
+  border-top: 1px solid #241d31;
+}
+.contact-bottom p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  color: #6f6480;
+}
+.contact-bottom p svg {
+  font-size: 14px;
+}
+.contact-bottom-dot {
+  margin: 0 4px;
+  color: #4b3a6b;
+}
+.contact-bottom-name {
+  color: var(--accentColor);
+}
+
+/* ----------------------------------------------------------- responsive */
+
+@media only screen and (max-width: 900px) {
+  .contact-section {
+    padding: 100px 0 70px;
   }
-  .contact-box h2 {
-    font-size: 20px;
+  .contact-title {
+    font-size: 30px;
+    margin-bottom: 32px;
   }
-  a.contact-social {
+  .contact-email {
+    font-size: 30px;
+  }
+  .contact-resume-btn {
+    margin-left: 0;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .contact-title {
+    font-size: 24px;
+  }
+  .contact-email {
     font-size: 22px;
   }
-}
-@media only screen and (max-width: 1300px) {
-  .contact-section h3 {
-    font-size: 40px;
-  }
-  .contact-box h2 {
-    font-size: 18px;
-  }
-  a.contact-social {
-    font-size: 20px;
-  }
-  .contact-flex p {
-    margin-top: 0px;
-  }
-}
-@media only screen and (max-width: 900px) {
-  .contact-flex {
+  .contact-meta {
     flex-direction: column;
-    gap: 40px;
+    gap: 16px;
   }
-  .contact-flex p {
-    margin-bottom: 0px;
+  .contact-dot {
+    display: none;
   }
-  .contact-flex h4 {
-    margin-top: 20px;
+  .contact-bottom p {
+    font-size: 11px;
   }
-  .contact-section {
-    margin-top: 50px;
-    padding-bottom: 50px;
-  }
-  .contact-container {
-    width: calc(100% - 25px);
+  .contact-bottom-dot {
+    flex-basis: 100%;
+    height: 0;
+    margin: 0;
   }
 }
