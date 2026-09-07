@@ -1,234 +1,252 @@
 /*
- * Work / Projects.
+ * Work / project showcase.
  *
- * Rebuilt as a plain vertical stack of showcase cards - the old layout
- * pinned the whole section full-screen and scroll-jacked vertical input
- * into a horizontal `x` transform (GSAP ScrollTrigger + pin + translateX),
- * which read as the page "dragging left" and never had a real, swipeable
- * horizontal path on mobile in the first place (the same pin/translate
- * effect ran unconditionally on every viewport). Plain vertical scroll
- * removes that whole bug class by construction - it behaves identically on
- * every device because there's no custom scroll mechanism left to break.
- *
- * Card panel recipe matches the site's other "system" sections
- * (Footprint.css/TechStack.css): #0b080c panel, #2f2640 hairline, chip/pill
- * shapes reused from .stack-tool/.stack-chip and .fp-gps-btn.
+ * A native horizontally-scrolling carousel, not a vertical-scroll-hijack -
+ * see Work.tsx for why. The section sits in normal document flow (no pin,
+ * no fixed height); .work-flex is the only thing that scrolls, and only
+ * horizontally, only in response to the visitor's own touch/drag/click.
  */
 
 .work-section {
-  padding: 140px 0 110px;
+  padding: 100px 0 40px;
+  box-sizing: border-box;
 }
 
-.work-head {
-  text-align: center;
-  margin-bottom: 64px;
+.work-container {
+  margin: auto;
 }
-.work-eyebrow {
-  font-size: 14px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: var(--accentColor);
-  font-weight: 400;
-  margin: 0 0 16px;
+
+.work-heading-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 48px;
 }
 .work-section h2 {
-  font-size: 60px;
-  font-weight: 500;
   margin: 0;
+  font-size: 70px;
+  font-weight: 500;
 }
 .work-section h2 > span {
   color: var(--accentColor);
 }
 
-.work-list {
+/* ------------------------------------------------------------- controls */
+
+.work-controls {
   display: flex;
-  flex-direction: column;
-  gap: 40px;
+  gap: 10px;
 }
-
-.work-card {
-  display: grid;
-  grid-template-columns: 55% 1fr;
-  background-color: #0b080c;
-  border: 1px solid #2f2640;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-/* ------------------------------------------------------------------ media */
-
-.work-card-media {
-  position: relative;
-}
-.work-card-media .work-image,
-.work-card-media .work-image-in {
-  width: 100%;
-  height: 100%;
-}
-.work-card-media .work-image-in {
-  display: block;
-  position: relative;
-  aspect-ratio: 16 / 10;
-}
-.work-card-media img {
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  max-height: none;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.5s ease;
-}
-.work-card:hover .work-card-media img {
-  transform: scale(1.03);
-}
-.work-card-media a:hover {
-  color: inherit;
-}
-.work-link {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  background-color: var(--backgroundColor);
+.work-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 48px;
   height: 48px;
   border-radius: 50%;
+  border: 1px solid #2f2640;
+  color: #b9aecb;
+  font-size: 24px;
+  flex: none;
+  transition: border-color 0.25s, color 0.25s, opacity 0.25s;
+}
+.work-arrow:hover:not(:disabled) {
+  border-color: var(--accentColor);
+  color: var(--accentColor);
+}
+.work-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* --------------------------------------------------------- scroll track */
+
+.work-flex {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 22px;
-  box-shadow: 0px 0px 10px 0px rgba(255, 255, 255, 0.3),
-    inset 0px 0px 10px 0px #393939;
-  opacity: 0;
-  transition: opacity 0.3s;
-  z-index: 1;
+  gap: 28px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+  margin: 0 -30px;
+  padding-left: 30px;
+  padding-right: 30px;
+  cursor: grab;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-.work-card-media a:hover .work-link {
-  opacity: 1;
+.work-flex::-webkit-scrollbar {
+  display: none;
+}
+.work-flex-grabbing {
+  cursor: grabbing;
+}
+.work-flex-grabbing .work-box {
+  pointer-events: none;
 }
 
-/* ------------------------------------------------------------------- body */
-
-.work-card-body {
-  padding: 48px;
+.work-box {
+  flex: none;
+  scroll-snap-align: start;
+  width: 460px;
   display: flex;
   flex-direction: column;
+  border: 1px solid #2f2640;
+  border-radius: 16px;
+  background-color: #0b080c;
+  overflow: hidden;
+  transition: border-color 0.25s;
+}
+.work-box:hover {
+  border-color: #4b3a6b;
+}
+
+/* ------------------------------------------------------------------ image */
+
+.work-image {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background-color: #17121e;
+  overflow: hidden;
+}
+.work-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.work-box:hover .work-image img {
+  transform: scale(1.04);
+}
+
+/* ------------------------------------------------------------------- info */
+
+.work-info {
+  padding: 28px 30px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 .work-index {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 13px;
   letter-spacing: 1px;
   color: #6f6480;
-  margin-bottom: 14px;
+  margin-bottom: 6px;
 }
-.work-name {
-  font-size: 28px;
-  font-weight: 600;
+.work-info h4 {
   margin: 0;
+  font-size: 22px;
+  font-weight: 500;
 }
 .work-category {
-  color: var(--accentColor);
-  font-size: 15px;
-  font-weight: 400;
-  margin: 8px 0 0;
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #8f83a5;
 }
 
-.work-tools-label {
-  font-size: 12px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: #6f6480;
-  font-weight: 500;
-  margin: 32px 0 14px;
-}
 .work-tools {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-top: 18px;
 }
-.work-tool-chip {
-  padding: 7px 14px;
+.work-tool {
+  padding: 6px 12px;
   border: 1px solid #241d31;
-  border-radius: 100px;
+  border-radius: 8px;
   background-color: rgba(255, 255, 255, 0.012);
-  font-size: 13px;
+  font-size: 12.5px;
   color: #b9aecb;
   transition: border-color 0.25s, color 0.25s;
 }
-.work-card:hover .work-tool-chip {
-  border-color: #4b3a6b;
+.work-box:hover .work-tool {
+  border-color: #362b4a;
 }
 
-.work-cta {
+.work-link-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   align-self: flex-start;
-  margin-top: 32px;
-  padding: 12px 26px;
+  margin-top: 22px;
+  padding: 10px 20px;
   border-radius: 100px;
   border: 1px solid #4b3a6b;
   background-color: #1c1526;
   color: #eae5ec;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 500;
   transition: border-color 0.25s, color 0.25s;
 }
-.work-cta:hover {
+.work-link-btn:hover {
   border-color: var(--accentColor);
   color: var(--accentColor);
+}
+
+/* --------------------------------------------------------------- dots */
+
+.work-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 28px;
+}
+.work-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #2f2640;
+  transition: background-color 0.25s, transform 0.25s;
+}
+.work-dot:hover {
+  background-color: #4b3a6b;
+}
+.work-dot.is-active {
+  background-color: var(--accentColor);
+  transform: scale(1.3);
 }
 
 /* ----------------------------------------------------------- responsive */
 
 @media only screen and (max-width: 1400px) {
   .work-section h2 {
-    font-size: 48px;
+    font-size: 50px;
   }
-  .work-name {
-    font-size: 24px;
-  }
-  .work-card-body {
-    padding: 36px;
+  .work-box {
+    width: 400px;
   }
 }
 
 @media only screen and (max-width: 900px) {
   .work-section {
-    padding: 100px 0 80px;
-  }
-  .work-head {
-    margin-bottom: 48px;
+    padding: 70px 0 20px;
   }
   .work-section h2 {
-    font-size: 36px;
+    font-size: 38px;
   }
-  .work-card {
-    grid-template-columns: 1fr;
+  .work-heading-row {
+    margin-bottom: 32px;
   }
-  .work-card-media .work-image-in {
-    aspect-ratio: 16 / 10;
+  /* Touch swipe is the natural interaction here - the pointer-drag handler
+     only listens for mouse input anyway, and arrow buttons/dots exist for
+     mouse/trackpad visitors, not touch ones. */
+  .work-controls,
+  .work-dots {
+    display: none;
   }
-  .work-card-body {
-    padding: 28px;
+  .work-box {
+    width: min(340px, calc(100vw - 90px));
   }
-  .work-tools-label {
-    margin-top: 24px;
+  .work-flex {
+    margin: 0 -12px;
+    padding-left: 12px;
+    padding-right: 12px;
+    gap: 16px;
   }
-}
-
-@media only screen and (max-width: 600px) {
-  .work-section h2 {
-    font-size: 28px;
-  }
-  .work-name {
-    font-size: 20px;
-  }
-  .work-card-body {
-    padding: 22px;
-  }
-  .work-cta {
-    align-self: stretch;
-    justify-content: center;
+  .work-info {
+    padding: 22px 22px 26px;
   }
 }

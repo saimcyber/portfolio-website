@@ -65,12 +65,19 @@ export function setClusterTimeline(
       )
       .to(".about-section", { y: "30%", duration: 6 }, 0)
       .to(".about-section", { opacity: 0, delay: 3, duration: 2 }, 0)
-      .fromTo(
-        ".character-model",
-        { pointerEvents: "inherit" },
-        { pointerEvents: "none", x: "-10%", delay: 2, duration: 5 },
-        0
-      )
+      // Was also scrubbing pointerEvents "inherit" -> "none" here. That
+      // wrote an inline style GSAP re-evaluates against scroll position, so
+      // anywhere before this tween's segment completed - including a direct
+      // nav-link jump or a programmatic scrollIntoView, not just a slow
+      // scroll through About - .character-model sat at "inherit" (i.e.
+      // effectively auto), overriding the CSS pointer-events: none in
+      // Landing.css and letting the hero's fixed-position hit-test box
+      // swallow clicks meant for whatever section currently occupies that
+      // part of the screen (confirmed via elementFromPoint: Work's arrow
+      // buttons). Nothing in Cluster/* needs pointer events at all, so the
+      // CSS rule alone is both sufficient and correct at every scroll
+      // position - no scrubbed animation needed.
+      .to(".character-model", { x: "-10%", delay: 2, duration: 5 }, 0)
       .to(rig.rotation, { y: 0.88, x: 0.24, delay: 2, duration: 4 }, 0)
       .to(
         rollout,

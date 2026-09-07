@@ -1,38 +1,19 @@
-import { MdArrowOutward } from "react-icons/md";
-
 interface Props {
   image: string;
   alt?: string;
-  link?: string;
 }
 
 /**
- * A project card's image. Renders as a link only when the project actually has
- * one: an unlinked project used to render `<a target="_blank">` with no `href`,
- * which is a focusable element that does nothing when activated (and reads to a
- * screen reader as a link with no destination).
+ * A project card's image. Purely visual now - the clickable "View project"
+ * link lives as its own pill button in Work.tsx, so this no longer wraps the
+ * image in an `<a>` (having both a corner badge and a button link to the same
+ * place was redundant, and an unlinked project used to render `<a
+ * target="_blank">` with no `href`, a focusable element that did nothing).
  */
-const WorkImage = ({ image, alt, link }: Props) => {
-  const figure = <img src={image} alt={alt} loading="lazy" decoding="async" />;
-
+const WorkImage = ({ image, alt }: Props) => {
   return (
     <div className="work-image">
-      {link ? (
-        <a
-          className="work-image-in"
-          href={link}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-cursor="disable"
-        >
-          <div className="work-link">
-            <MdArrowOutward />
-          </div>
-          {figure}
-        </a>
-      ) : (
-        <div className="work-image-in">{figure}</div>
-      )}
+      <img src={image} alt={alt} loading="lazy" decoding="async" />
     </div>
   );
 };

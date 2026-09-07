@@ -212,9 +212,9 @@ const Scene = () => {
     document.addEventListener("mousemove", onMouseMove);
 
     /**
-     * This used to kill and rebuild every ScrollTrigger on EVERY resize,
-     * unconditionally. That's redundant AND actively harmful for the common
-     * case: Navbar.tsx already calls
+     * This used to kill and rebuild every ScrollTrigger (except Work's pin)
+     * on EVERY resize, unconditionally. That's redundant AND actively
+     * harmful for the common case: Navbar.tsx already calls
      * `ScrollSmoother.refresh(true)` on every resize, and every trigger in
      * GsapScroll.ts already has `invalidateOnRefresh: true`, so a plain
      * refresh already re-anchors each scrub tween's start value to whatever
@@ -248,9 +248,9 @@ const Scene = () => {
       if (!startedRef.current) return;
       if (isDesktopRef.current === nowDesktop) return;
       isDesktopRef.current = nowDesktop;
-      // Used to spare Work's own pinned ScrollTrigger (by id) from this
-      // kill-and-rebuild - Work no longer creates one (see Work.tsx), so
-      // there's nothing left to exclude.
+      // Work no longer has a ScrollTrigger of its own (it's a native
+      // horizontal scroller now, not a pinned/scrubbed one), so there's
+      // nothing left to preserve here - kill everything and rebuild.
       ScrollTrigger.getAll().forEach((t) => t.kill());
       buildTimelines();
     };

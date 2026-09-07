@@ -107,7 +107,37 @@
   left: 50%;
   z-index: 0;
   bottom: 50px;
-  pointer-events: inherit;
+  /*
+   * Was `pointer-events: inherit`, with only the `<canvas>` itself (below)
+   * set to `none`. On desktop this whole block renders as a sibling of
+   * #smooth-wrapper (see MainContainer.tsx), positioned absolutely against
+   * the outer, non-scrolling .container-main - so it stays fixed at the
+   * same on-screen position no matter how far the page has scrolled, always
+   * overlapping whatever section currently occupies that band of the
+   * viewport. React Three Fiber wraps its <canvas> in its own plain <div>
+   * that the `canvas`-only selector below never reached, and that div - not
+   * the canvas - was inheriting pointer-events: auto and swallowing clicks
+   * meant for real content underneath (confirmed via elementFromPoint:
+   * Work's arrow buttons were unclickable whenever the hero happened to
+   * overlap that part of the page). Nothing in Cluster/* attaches a DOM
+   * pointer/click handler - the parallax tracking is a document-level
+   * `mousemove` listener - so disabling pointer-events on the whole block
+   * is safe.
+   */
+  pointer-events: none;
+}
+/*
+ * react-three-fiber's <Canvas> renders its own wrapper <div> around the
+ * <canvas> with an inline `pointer-events: auto` (its own default, for
+ * libraries like drei's OrbitControls that need it) - an inline style beats
+ * any external rule on that same element, including the `pointer-events:
+ * none` above, which only reaches this div via inheritance and inheritance
+ * never wins over an element's own explicit value. `!important` here is the
+ * standard way to override a library-set inline style; nothing in Cluster/*
+ * attaches a DOM pointer handler, so this is safe everywhere.
+ */
+.character-model > div {
+  pointer-events: none !important;
 }
 .character-model::after {
   content: "";
