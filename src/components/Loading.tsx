@@ -141,43 +141,73 @@ const Loading = ({ percent }: { percent: number }) => {
 
 export default Loading;
 
+/**
+ * Drives the displayed percentage.
+ *
+ * Used to be an interval that, past 50%, ticked every 2000ms and added
+ * `Math.round(Math.random())` - a coin flip between +0 and +1. Roughly half
+ * of those ticks did nothing at all, which is exactly what read as "stuck at
+ * a percentage" for seconds at a time, and the total time to climb from 51
+ * to 91 had no upper bound (expected ~160s of ticking, cut short only by
+ * Scene.tsx's unrelated MIN_MS floor).
+ *
+ * Replaced with a single requestAnimationFrame loop on a fixed easing curve:
+ * every frame moves forward by a small, continuous amount, so the number
+ * never freezes and the climb to ~92% completes in a bounded, predictable
+ * ~2.3s regardless of device speed - decoupled entirely from real scene
+ * readiness, which is what gates the actual page reveal (see Scene.tsx's
+ * `handleReady`/MIN_MS). `loaded()` then eases the last stretch to 100 over
+ * a quick, fixed 250ms tween instead of a 2ms-interval busy-loop.
+ */
 export const setProgress = (setLoading: (value: number) => void) => {
-  let percent: number = 0;
+  const CLIMB_MS = 2300;
+  const CLIMB_CAP = 92;
+  const FINISH_MS = 250;
 
-  let interval = setInterval(() => {
-    if (percent <= 50) {
-      const rand = Math.round(Math.random() * 5);
-      percent = percent + rand;
+  let percent = 0;
+  let rafId = 0;
+  let settled = false;
+  const start = performance.now();
+
+  const climb = (now: number) => {
+    if (settled) return;
+    const t = Math.min(1, (now - start) / CLIMB_MS);
+    // Cubic ease-out: fast at first, gradually slowing as it nears the cap
+    // rather than either a linear crawl or an abrupt stop.
+    const eased = 1 - Math.pow(1 - t, 3);
+    const next = Math.min(CLIMB_CAP, Math.round(eased * CLIMB_CAP));
+    if (next !== percent) {
+      percent = next;
       setLoading(percent);
-    } else {
-      clearInterval(interval);
-      interval = setInterval(() => {
-        percent = percent + Math.round(Math.random());
-        setLoading(percent);
-        if (percent > 91) {
-          clearInterval(interval);
-        }
-      }, 2000);
     }
-  }, 100);
+    if (t < 1) rafId = requestAnimationFrame(climb);
+  };
+  rafId = requestAnimationFrame(climb);
 
   function clear() {
-    clearInterval(interval);
+    settled = true;
+    cancelAnimationFrame(rafId);
+    percent = 100;
     setLoading(100);
   }
 
   function loaded() {
     return new Promise<number>((resolve) => {
-      clearInterval(interval);
-      interval = setInterval(() => {
-        if (percent < 100) {
-          percent++;
-          setLoading(percent);
+      settled = true;
+      cancelAnimationFrame(rafId);
+      const from = percent;
+      const finishStart = performance.now();
+      const finish = (now: number) => {
+        const t = Math.min(1, (now - finishStart) / FINISH_MS);
+        percent = Math.round(from + (100 - from) * t);
+        setLoading(percent);
+        if (t < 1) {
+          requestAnimationFrame(finish);
         } else {
           resolve(percent);
-          clearInterval(interval);
         }
-      }, 2);
+      };
+      requestAnimationFrame(finish);
     });
   }
   return { loaded, percent, clear };
