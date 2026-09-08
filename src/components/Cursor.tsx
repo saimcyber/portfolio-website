@@ -22,13 +22,20 @@ const Cursor = () => {
     // handle and no cleanup, so it ran for the lifetime of the document and a
     // second one started on every remount (React StrictMode remounts every
     // effect once in development, so two loops fought over the same element).
+    // quickTo reuses one tween per property instead of allocating a fresh
+    // `gsap.to` every animation frame (which also layered a 0.1s ease on top
+    // of the manual lerp below). Same motion, no per-frame garbage.
+    const setX = gsap.quickTo(cursor, "x", { duration: 0.1 });
+    const setY = gsap.quickTo(cursor, "y", { duration: 0.1 });
+
     let frame = 0;
     const loop = () => {
       if (!hover) {
         const delay = 6;
         cursorPos.x += (mousePos.x - cursorPos.x) / delay;
         cursorPos.y += (mousePos.y - cursorPos.y) / delay;
-        gsap.to(cursor, { x: cursorPos.x, y: cursorPos.y, duration: 0.1 });
+        setX(cursorPos.x);
+        setY(cursorPos.y);
       }
       frame = requestAnimationFrame(loop);
     };

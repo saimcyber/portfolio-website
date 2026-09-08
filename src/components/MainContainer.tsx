@@ -1,4 +1,5 @@
 import { PropsWithChildren, useEffect, useState } from "react";
+import { debounce } from "./utils/debounce";
 import About from "./About";
 import Career from "./Career";
 import Contact from "./Contact";
@@ -13,6 +14,11 @@ import TechStack from "./TechStack";
 import Work from "./Work";
 import setSplitText from "./utils/splitText";
 
+const isCoarsePointer =
+  typeof window !== "undefined" &&
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(pointer: coarse)").matches;
+
 const MainContainer = ({ children }: PropsWithChildren) => {
   const [isDesktopView, setIsDesktopView] = useState<boolean>(
     window.innerWidth > 1024
@@ -22,16 +28,24 @@ const MainContainer = ({ children }: PropsWithChildren) => {
       setSplitText();
       setIsDesktopView(window.innerWidth > 1024);
     };
+    // Run once immediately to wire up the paragraph reveals, then debounce:
+    // `setSplitText()` reverts and re-splits every .para/.title and rebuilds
+    // their ScrollTriggers, which must not happen per `resize` event.
     resizeHandler();
-    window.addEventListener("resize", resizeHandler);
+    const onResize = debounce(resizeHandler, 150);
+    window.addEventListener("resize", onResize);
     return () => {
-      window.removeEventListener("resize", resizeHandler);
+      onResize.cancel();
+      window.removeEventListener("resize", onResize);
     };
-  }, [isDesktopView]);
+  }, []);
 
   return (
     <div className="container-main">
-      <Cursor />
+      {/* The custom cursor is invisible on touch devices (--size: 0) but its
+          effect still ran a permanent rAF loop + document mousemove listener.
+          Skip it entirely where there's no fine pointer. */}
+      {!isCoarsePointer && <Cursor />}
       <Navbar />
       <SocialIcons />
       <Terminal />

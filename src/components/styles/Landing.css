@@ -80,6 +80,22 @@
     transform: translate(calc(100% - 2px), -50%) rotate(360deg);
   }
 }
+
+/* These are two 300px discs with a 50-60px blur filter - large layers the
+   compositor repaints every frame they animate. `body.hero-offscreen` is set
+   by Scene.tsx's IntersectionObserver once the hero has scrolled away, so
+   there is no reason to keep spinning them behind the rest of the page.
+   prefers-reduced-motion stops them outright. */
+body.hero-offscreen .landing-circle1,
+body.hero-offscreen .landing-circle2 {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-circle1,
+  .landing-circle2 {
+    animation: none;
+  }
+}
 .character-rim {
   /* Soft halo behind the cluster. This was a floor light under a standing
      character; at its old size and saturation it flooded the whole hero. */

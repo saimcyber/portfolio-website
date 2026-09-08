@@ -4,6 +4,7 @@ import HoverLinks from "./HoverLinks";
 import { gsap } from "gsap";
 import { ScrollSmoother } from "gsap/ScrollSmoother";
 import { personal } from "../data/content";
+import { debounce } from "./utils/debounce";
 import "./styles/Navbar.css";
 
 gsap.registerPlugin(ScrollSmoother, ScrollTrigger);
@@ -11,13 +12,17 @@ export let smoother: ScrollSmoother;
 
 const Navbar = () => {
   useEffect(() => {
+    const reducedMotion =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     smoother = ScrollSmoother.create({
       wrapper: "#smooth-wrapper",
       content: "#smooth-content",
       // 1.7 meant content took ~1.8s to catch up after a fast scroll, which
       // read as text and animations arriving late. 1.0 keeps the smooth feel
-      // but roughly halves that lag.
-      smooth: 1,
+      // but roughly halves that lag. 0 = native scroll for reduced-motion.
+      smooth: reducedMotion ? 0 : 1,
       speed: 1.7,
       effects: true,
       autoResize: true,
@@ -43,15 +48,18 @@ const Navbar = () => {
     );
     links.forEach((element) => element.addEventListener("click", onLinkClick));
 
-    const onResize = () => {
+    // Debounced: a drag-resize fires `resize` continuously and a deep
+    // ScrollSmoother refresh is expensive. Once, after the drag settles.
+    const onResize = debounce(() => {
       ScrollSmoother.refresh(true);
-    };
+    }, 200);
     window.addEventListener("resize", onResize);
 
     return () => {
       links.forEach((element) =>
         element.removeEventListener("click", onLinkClick)
       );
+      onResize.cancel();
       window.removeEventListener("resize", onResize);
     };
   }, []);

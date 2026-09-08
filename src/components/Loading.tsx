@@ -23,6 +23,11 @@ const BOOT_LINES: { at: number; text: string; kind?: "ok" | "tip" }[] = [
   { at: 100, text: "tip: press ~ anywhere for a shell", kind: "tip" },
 ];
 
+const reducedMotion =
+  typeof window !== "undefined" &&
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 const Loading = ({ percent }: { percent: number }) => {
   const { setIsLoading } = useLoading();
   const [loaded, setLoaded] = useState(false);
@@ -86,7 +91,7 @@ const Loading = ({ percent }: { percent: number }) => {
       </div>
       <div className="loading-screen">
         <div className="loading-marquee">
-          <Marquee>
+          <Marquee play={!reducedMotion}>
             <span> Automate Everything</span> <span>Secure By Default</span>
             <span> Automate Everything</span> <span>Secure By Default</span>
           </Marquee>
@@ -140,75 +145,3 @@ const Loading = ({ percent }: { percent: number }) => {
 };
 
 export default Loading;
-
-/**
- * Drives the displayed percentage.
- *
- * Used to be an interval that, past 50%, ticked every 2000ms and added
- * `Math.round(Math.random())` - a coin flip between +0 and +1. Roughly half
- * of those ticks did nothing at all, which is exactly what read as "stuck at
- * a percentage" for seconds at a time, and the total time to climb from 51
- * to 91 had no upper bound (expected ~160s of ticking, cut short only by
- * Scene.tsx's unrelated MIN_MS floor).
- *
- * Replaced with a single requestAnimationFrame loop on a fixed easing curve:
- * every frame moves forward by a small, continuous amount, so the number
- * never freezes and the climb to ~92% completes in a bounded, predictable
- * ~2.3s regardless of device speed - decoupled entirely from real scene
- * readiness, which is what gates the actual page reveal (see Scene.tsx's
- * `handleReady`/MIN_MS). `loaded()` then eases the last stretch to 100 over
- * a quick, fixed 250ms tween instead of a 2ms-interval busy-loop.
- */
-export const setProgress = (setLoading: (value: number) => void) => {
-  const CLIMB_MS = 2300;
-  const CLIMB_CAP = 92;
-  const FINISH_MS = 250;
-
-  let percent = 0;
-  let rafId = 0;
-  let settled = false;
-  const start = performance.now();
-
-  const climb = (now: number) => {
-    if (settled) return;
-    const t = Math.min(1, (now - start) / CLIMB_MS);
-    // Cubic ease-out: fast at first, gradually slowing as it nears the cap
-    // rather than either a linear crawl or an abrupt stop.
-    const eased = 1 - Math.pow(1 - t, 3);
-    const next = Math.min(CLIMB_CAP, Math.round(eased * CLIMB_CAP));
-    if (next !== percent) {
-      percent = next;
-      setLoading(percent);
-    }
-    if (t < 1) rafId = requestAnimationFrame(climb);
-  };
-  rafId = requestAnimationFrame(climb);
-
-  function clear() {
-    settled = true;
-    cancelAnimationFrame(rafId);
-    percent = 100;
-    setLoading(100);
-  }
-
-  function loaded() {
-    return new Promise<number>((resolve) => {
-      settled = true;
-      cancelAnimationFrame(rafId);
-      const from = percent;
-      const finishStart = performance.now();
-      const finish = (now: number) => {
-        const t = Math.min(1, (now - finishStart) / FINISH_MS);
-        percent = Math.round(from + (100 - from) * t);
-        setLoading(percent);
-        if (t < 1) {
-          requestAnimationFrame(finish);
-        } else {
-          resolve(percent);
-        }
-      };
-      requestAnimationFrame(finish);
-    });
-  }
-  return { loaded, percent, clear };
-};

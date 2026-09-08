@@ -20,6 +20,26 @@ boot / loading sequence. Deployed on Vercel.
   tech-stack diagram, all driven from one content file
 - Security headers and long-lived asset caching configured in `vercel.json`
 
+## Origin
+
+This site has been rebuilt well past its starting point. Everything below is
+original work:
+
+- **The hero** — a real-time Kubernetes cluster visualisation
+  (`src/components/Cluster/`), written from scratch. It replaces the original
+  3D avatar, which is gone along with every one of its assets.
+- **Every section** — About, What I Do, Career, Work, Tech Stack, the Digital
+  Footprint scanner and the interactive `~` shell — is original in copy,
+  design and implementation.
+- **Removed entirely** — the Rapier physics mini-game, the encrypted character
+  GLB, the DRACO decoder and the HDR environment map.
+
+What carries over from the open-source "3D Developer Portfolio" by
+**Moncy Yohannan** is the GSAP ScrollSmoother / ScrollTrigger scroll
+choreography and the split-text intro, both heavily adapted. Used under the
+Personal Portfolio License (see `LICENSE`); credit per its attribution clause —
+www.moncy.dev.
+
 ---
 
 ## Running locally
@@ -78,10 +98,12 @@ rather than throwing, so content edits can't white-screen the section.
   `<Lightformer>`s and its geometry in code, so nothing is downloaded. The
   original encrypted character GLB, its DRACO decoder and the bone data went
   with the character; `char_enviorment.hdr` went with the tech-stack canvas.
-- **Loading** is gated on the scene mounting plus a first rendered frame plus a
-  short floor duration, with an 8s failsafe in `Cluster/Scene.tsx` - without the
-  floor the loader would finish instantly and the boot sequence would never be
-  readable.
+- **Loading.** The percentage bar is an eased ~2.3s climb started from
+  `LoadingProvider` (via `src/context/loadingProgress.ts`) so it animates from
+  first paint, not after the lazy 3D chunk parses. The actual page reveal is
+  gated on the scene mounting plus a first rendered frame plus a short floor
+  duration, with an 8s failsafe in `Cluster/Scene.tsx` and a 12s last-resort
+  failsafe in `LoadingProvider`.
 - **The tech-stack section used to be the heaviest thing on the site**: a
   Rapier physics canvas at ~2.2MB raw / ~854KB gzipped, ~89% of it the physics
   engine's WebAssembly binary inlined as base64. It was replaced by a static
@@ -100,4 +122,6 @@ rather than throwing, so content edits can't white-screen the section.
 
 ## License
 
-See `LICENSE` (Personal Portfolio License v1.0)
+
+See `LICENSE` (Personal Portfolio License v1.0). Its attribution and
+non-commercial terms cover the adapted scroll/intro code noted under **Origin**.

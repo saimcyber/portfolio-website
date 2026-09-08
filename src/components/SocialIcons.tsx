@@ -6,6 +6,7 @@ import { TbNotes } from "react-icons/tb";
 import { useEffect } from "react";
 import HoverLinks from "./HoverLinks";
 import { personal } from "../data/content";
+import { debounce } from "./utils/debounce";
 
 const SocialIcons = () => {
   /**
@@ -20,6 +21,16 @@ const SocialIcons = () => {
    * One loop and one listener now drive all four icons, and both are released.
    */
   useEffect(() => {
+    // Magnetic hover is a fine-pointer affordance; on touch there's no
+    // mousemove to drive it, so the rAF loop would just lerp toward a fixed
+    // value forever. Skip the whole thing.
+    if (
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(pointer: coarse)").matches
+    ) {
+      return;
+    }
+
     const social = document.getElementById("social");
     if (!social) return;
 
@@ -67,16 +78,17 @@ const SocialIcons = () => {
 
     // The cached rects are viewport coordinates for a `position: fixed` rail,
     // so they only go stale on resize.
-    const onResize = () => {
+    const onResize = debounce(() => {
       icons.forEach((icon) => {
         icon.rect = icon.link.parentElement!.getBoundingClientRect();
       });
-    };
+    }, 150);
     window.addEventListener("resize", onResize);
 
     return () => {
       cancelAnimationFrame(frame);
       document.removeEventListener("mousemove", onMouseMove);
+      onResize.cancel();
       window.removeEventListener("resize", onResize);
     };
   }, []);

@@ -147,3 +147,17 @@ body {
     --cWidth: 94%;
   }
 }
+
+/* Reduced motion: the JS-driven GSAP reveals already branch on the same
+   preference (Scene.tsx, ScrollCue.tsx, Navbar.tsx smooth:0). This covers the
+   remaining looping decorative CSS animations so nothing keeps moving. Section-
+   specific ones are handled in their own stylesheets (Landing, Career,
+   ScrollCue, Footprint). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

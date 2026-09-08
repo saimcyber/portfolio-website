@@ -106,6 +106,20 @@
   box-shadow: 0px 0px 5px 2px #d29bff, 0px 0px 15px 8px #d097ff,
     0px 0px 110px 20px #f2c0ff;
   animation: timeline 0.8s linear infinite forwards;
+  /* The keyframes animate a 3-layer, 110px-spread box-shadow = a full repaint
+     of a ~250px box every frame. It used to run from page load, unseen, until
+     the Career section scrolled in. `.career-live` (toggled by a ScrollTrigger
+     in GsapScroll.ts) only lets it run while the section is actually near the
+     viewport. */
+  animation-play-state: paused;
+}
+.career-live .career-dot {
+  animation-play-state: running;
+}
+@media (prefers-reduced-motion: reduce) {
+  .career-dot {
+    animation: none;
+  }
 }
 
 @keyframes timeline {

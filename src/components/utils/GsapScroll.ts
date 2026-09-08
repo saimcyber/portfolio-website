@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { setRollout } from "../Cluster/clusterStore";
 
 /**
@@ -129,6 +130,19 @@ export function setClusterTimeline(
 }
 
 export function setAllTimeline() {
+  // Let the `.career-dot` pulse (an infinite box-shadow keyframe animation)
+  // run only while the Career section is near the viewport - see Career.css.
+  ScrollTrigger.create({
+    trigger: ".career-section",
+    start: "top bottom",
+    end: "bottom top",
+    onToggle: (self) => {
+      document
+        .querySelector(".career-section")
+        ?.classList.toggle("career-live", self.isActive);
+    },
+  });
+
   const careerTimeline = gsap.timeline({
     scrollTrigger: {
       trigger: ".career-section",

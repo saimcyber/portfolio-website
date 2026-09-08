@@ -3,6 +3,7 @@ import { MdArrowOutward, MdChevronLeft, MdChevronRight } from "react-icons/md";
 import "./styles/Work.css";
 import WorkImage from "./WorkImage";
 import { projects } from "../data/content";
+import { debounce } from "./utils/debounce";
 
 /**
  * A real, native horizontal scroller instead of a vertical-scroll-hijack.
@@ -50,10 +51,12 @@ const Work = () => {
     if (!el) return;
     updateEdges();
     el.addEventListener("scroll", updateEdges, { passive: true });
-    window.addEventListener("resize", updateEdges);
+    const onResize = debounce(updateEdges, 150);
+    window.addEventListener("resize", onResize);
     return () => {
       el.removeEventListener("scroll", updateEdges);
-      window.removeEventListener("resize", updateEdges);
+      onResize.cancel();
+      window.removeEventListener("resize", onResize);
     };
   }, []);
 

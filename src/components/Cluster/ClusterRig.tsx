@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
@@ -318,10 +318,29 @@ export default function ClusterRig({
   const ndc = useMemo(() => new THREE.Vector2(), []);
   const nodeCount = getNodeCount();
 
+  // `window.scrollY` was read once per frame inside useFrame - a layout read on
+  // the render loop. A passive scroll listener keeps this current for free.
+  const nearTopRef = useRef(true);
+  useEffect(() => {
+    const onScroll = () => {
+      nearTopRef.current = window.scrollY < 240;
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // The hover pick is a recursive raycast over the whole rig. At 60fps that is
+  // 60 full-tree intersections a second for a pointer that barely moves.
+  // Throttled to ~15Hz and skipped entirely when the pointer hasn't moved
+  // since the last pick - the hover response stays imperceptibly quick.
+  const pickAccRef = useRef(0);
+  const lastPickRef = useRef({ x: 2, y: 2 });
+
   useFrame((state, delta) => {
     const rig = rigRef.current;
     if (!rig) return;
-    const nearTop = window.scrollY < 240;
+    const nearTop = nearTopRef.current;
 
     // Constant slow drift, independent of the cursor and of the scroll
     // timeline (which owns `rig.rotation`), so the cluster is never static.
@@ -338,25 +357,35 @@ export default function ClusterRig({
 
     // Hover is raycast by hand: the canvas is `pointer-events: none` so the
     // hero text stays selectable, which R3F's own pointer events would break.
-    if (nearTop && mouseRef.current.moved) {
-      ndc.set(mouseRef.current.x, mouseRef.current.y);
-      raycaster.setFromCamera(ndc, state.camera);
-      const hits = raycaster.intersectObjects(rig.children, true);
-      let found = -1;
-      if (hits.length) {
-        let o: THREE.Object3D | null = hits[0].object;
-        while (o && o !== rig) {
-          if (typeof o.userData.nodeIndex === "number") {
-            found = o.userData.nodeIndex;
-            break;
-          }
-          o = o.parent;
-        }
-      }
-      hoveredRef.current = found;
-    } else {
+    if (!nearTop || !mouseRef.current.moved) {
       hoveredRef.current = -1;
+      return;
     }
+
+    pickAccRef.current += delta;
+    const m = mouseRef.current;
+    const moved =
+      m.x !== lastPickRef.current.x || m.y !== lastPickRef.current.y;
+    if (pickAccRef.current < 0.066 || !moved) return;
+    pickAccRef.current = 0;
+    lastPickRef.current.x = m.x;
+    lastPickRef.current.y = m.y;
+
+    ndc.set(m.x, m.y);
+    raycaster.setFromCamera(ndc, state.camera);
+    const hits = raycaster.intersectObjects(rig.children, true);
+    let found = -1;
+    if (hits.length) {
+      let o: THREE.Object3D | null = hits[0].object;
+      while (o && o !== rig) {
+        if (typeof o.userData.nodeIndex === "number") {
+          found = o.userData.nodeIndex;
+          break;
+        }
+        o = o.parent;
+      }
+    }
+    hoveredRef.current = found;
   });
 
   return (

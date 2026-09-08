@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer } from "@react-three/drei";
@@ -6,8 +6,9 @@ import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import gsap from "gsap";
 import { useLoading } from "../../context/LoadingProvider";
-import { setProgress } from "../Loading";
+import { getProgressMachine, setProgress } from "../../context/loadingProgress";
 import { setClusterTimeline, setAllTimeline } from "../utils/GsapScroll";
+import { debounce } from "../utils/debounce";
 import { setSimulationEnabled } from "./clusterStore";
 import ClusterRig from "./ClusterRig";
 
@@ -22,14 +23,6 @@ function cameraForWidth(w: number) {
     ? { position: [0, 0.2, 12.6] as const, fov: 32 }
     : { position: [0, 0.2, 13.5] as const, fov: 40 };
 }
-
-/**
- * One progress machine for the app's lifetime. StrictMode mounts the Scene
- * twice in development; without this guard each mount started its own ticking
- * interval and the two fought over `setLoading`, making the displayed
- * percentage jump backwards (75% -> 54%).
- */
-let progressMachine: ReturnType<typeof setProgress> | null = null;
 
 /** Signals that the scene graph is mounted; paired with the first rendered
  *  frame to open the loading gate. */
@@ -116,7 +109,7 @@ function SceneContents({
 
       <ClusterRig rigRef={rigRef} mouseRef={mouseRef} reduced={reduced} />
 
-      <EffectComposer>
+      <EffectComposer multisampling={0}>
         <Bloom
           luminanceThreshold={0.85}
           luminanceSmoothing={0.25}
@@ -132,6 +125,13 @@ const Scene = () => {
   const { setLoading } = useLoading();
   const rigRef = useRef<THREE.Group | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const modelRef = useRef<HTMLDivElement>(null);
+  // Whether the hero canvas is anywhere near the viewport. Once the scroll
+  // timeline has driven `.character-model` fully off-screen (past "What I Do"),
+  // the canvas + its full-screen bloom pass were still rendering every frame
+  // for the entire rest of the page. Flipping `frameloop` to "never" stops all
+  // of that until the visitor scrolls back up.
+  const [heroVisible, setHeroVisible] = useState(true);
   // `moved` guards the hover raycast: until the pointer actually moves, the
   // ref sits at (0,0), which is screen centre - that would permanently
   // "hover" whichever node happens to be in the middle of the viewport.
@@ -147,8 +147,9 @@ const Scene = () => {
   const isDesktopRef = useRef(window.innerWidth > 1024);
 
   if (!progressRef.current) {
-    if (!progressMachine) progressMachine = setProgress((v) => setLoading(v));
-    progressRef.current = progressMachine;
+    // LoadingProvider has already created and started this singleton; the
+    // callback here is ignored if so. Kept as a fallback for any mount order.
+    progressRef.current = getProgressMachine((v) => setLoading(v));
   }
 
   /**
@@ -254,7 +255,11 @@ const Scene = () => {
       ScrollTrigger.getAll().forEach((t) => t.kill());
       buildTimelines();
     };
-    window.addEventListener("resize", onResize);
+    // Coalesced: a drag-resize fires dozens of `resize` events and the
+    // breakpoint-cross rebuild (plus Navbar's ScrollSmoother.refresh) is heavy.
+    // The camera fov nudge waiting an extra 150ms is imperceptible.
+    const onResizeDebounced = debounce(onResize, 150);
+    window.addEventListener("resize", onResizeDebounced);
 
     // Failsafe: the ready gate needs the scene mounted plus a first rendered
     // frame. If WebGL context creation fails or a frame never lands, the
@@ -266,17 +271,45 @@ const Scene = () => {
     return () => {
       window.clearTimeout(failsafe);
       document.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("resize", onResize);
+      onResizeDebounced.cancel();
+      window.removeEventListener("resize", onResizeDebounced);
+    };
+  }, []);
+
+  // Pause the render loop whenever the hero canvas is scrolled out of view.
+  useEffect(() => {
+    const node = modelRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const on = entry.isIntersecting;
+        setHeroVisible(on);
+        // Ancestor hook for CSS: pauses the large blurred landing-circle /
+        // character-rim animations while the hero is off-screen (Landing.css).
+        document.body.classList.toggle("hero-offscreen", !on);
+      },
+      { rootMargin: "200px 0px" }
+    );
+    observer.observe(node);
+    return () => {
+      observer.disconnect();
+      document.body.classList.remove("hero-offscreen");
     };
   }, []);
 
   return (
     <div className="character-container">
-      <div className="character-model">
+      <div className="character-model" ref={modelRef}>
         <div className="character-rim"></div>
         <Canvas
-          dpr={[1, 2]}
-          gl={{ alpha: true, antialias: true }}
+          frameloop={heroVisible ? "always" : "never"}
+          // 1.75 rather than 2: the scene is dominated by a full-screen bloom
+          // pass, so DPR 2 on a retina panel is ~30% more fragment work for a
+          // difference bloom hides anyway. antialias is off because the
+          // EffectComposer renders into its own target - the context MSAA was
+          // paid for and then discarded.
+          dpr={[1, 1.75]}
+          gl={{ alpha: true, antialias: false }}
           camera={{
             position: [cam.position[0], cam.position[1], cam.position[2]],
             fov: cam.fov,
