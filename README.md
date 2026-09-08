@@ -9,13 +9,9 @@ Built with React, TypeScript, Vite, GSAP and Three.js.
 
 ## Credits
 
-The page layout, scroll choreography and loading flow of this site started from
-the open-source portfolio by **Moncy Yohannan**, used under its Personal
-Portfolio License (see `LICENSE`). All content is my own, and the hero 3D
+All content is my own, and the hero 3D
 scene, the loading screen and the interactive shell were built from scratch to
 replace the original character, mini-game and layout accents.
-
-Original project: https://github.com/moncy-yohannan
 
 ---
 
@@ -97,5 +93,4 @@ rather than throwing, so content edits can't white-screen the section.
 
 ## License
 
-See `LICENSE` (Personal Portfolio License v1.0), inherited from the original
-project.
+See `LICENSE` (Personal Portfolio License v1.0)
