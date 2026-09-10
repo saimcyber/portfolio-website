@@ -3,15 +3,22 @@
 Personal portfolio site for **Saim Zaib**, DevOps & Cloud Engineer based in
 Islamabad, Pakistan.
 
-Built with React, TypeScript, Vite, GSAP and Three.js.
+![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
+![GSAP](https://img.shields.io/badge/GSAP-88CE02?logo=greensock&logoColor=black)
 
----
+Built with React, TypeScript and Vite, with a hand-built 3D hero scene
+(`@react-three/fiber` + `drei`), a GSAP `ScrollSmoother` layout, and a custom
+boot / loading sequence. Deployed on Vercel.
 
-## Credits
+## Highlights
 
-All content is my own, and the hero 3D
-scene, the loading screen and the interactive shell were built from scratch to
-replace the original character, mini-game and layout accents.
+- Code-built 3D hero scene — no downloaded GLB/HDR assets
+- Custom loading screen gated on first render, with an 8s failsafe
+- Career timeline, horizontally-scrolling project showcase, and a CI/CD-pipeline
+  tech-stack diagram, all driven from one content file
+- Security headers and long-lived asset caching configured in `vercel.json`
 
 ---
 
