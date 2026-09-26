@@ -110,10 +110,10 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 12px;
   letter-spacing: 1px;
-  color: #6f6480;
+  color: #a99dbb;
   margin-bottom: 10px;
 }
-.stack-stage h4 {
+.stack-stage h3 {
   margin: 0 0 8px;
   font-size: 19px;
   font-weight: 500;
@@ -125,7 +125,7 @@
   margin: 0 0 24px;
   font-size: 13px;
   line-height: 1.5;
-  color: #6f6480;
+  color: #a99dbb;
   max-width: 22ch;
 }
 
@@ -193,7 +193,7 @@
   font-size: 11px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #6f6480;
+  color: #a99dbb;
   flex: none;
 }
 .stack-foundation ul {
@@ -312,7 +312,7 @@
   .stack-stage::before {
     top: 4px;
   }
-  .stack-stage h4 {
+  .stack-stage h3 {
     font-size: 17px;
   }
   .stack-stage-head p {

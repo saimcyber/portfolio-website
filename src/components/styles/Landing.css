@@ -37,7 +37,7 @@
   );
   pointer-events: none;
   z-index: 12;
-  opacity: 0;
+  opacity: 1;
   left: 0;
 }
 /* Below 500px the nav links stack into a column roughly 115px tall, so the
@@ -192,7 +192,7 @@ body.hero-offscreen .landing-circle2 {
   top: 12%;
   left: 0;
 }
-.landing-intro h2 {
+.landing-greeting {
   margin: 0;
   color: var(--accentColor);
   font-size: 22px;
@@ -226,14 +226,14 @@ body.hero-offscreen .landing-circle2 {
   top: inherit;
   z-index: 9;
 }
-.landing-info h3 {
+.landing-prefix {
   font-size: 22px;
   letter-spacing: 2px;
   font-weight: 300;
   color: var(--accentColor);
   margin: 0;
 }
-.landing-info h2 {
+.landing-info .landing-line {
   margin: 0;
   margin-top: -6px;
   margin-left: 20px;
@@ -251,7 +251,7 @@ body.hero-offscreen .landing-circle2 {
   position: absolute;
   top: 0;
 }
-h2.landing-info-h2 {
+.landing-info-h2 {
   color: #c481ff;
   font-size: 42px;
   width: 120%;
@@ -286,21 +286,21 @@ h2.landing-info-h2 {
   .character-model {
     z-index: 0;
   }
-  .landing-info h3 {
+  .landing-prefix {
     font-size: 18px;
   }
-  .landing-intro h2 {
+  .landing-greeting {
     font-size: 18px;
   }
   .landing-intro h1 {
     font-size: 30px;
     line-height: 30px;
   }
-  .landing-info h2 {
+  .landing-info .landing-line {
     font-size: 35px;
     line-height: 40px;
   }
-  h2.landing-info-h2 {
+  .landing-info-h2 {
     font-size: 38px;
   }
 }
@@ -308,27 +308,29 @@ h2.landing-info-h2 {
   .character-model {
     height: 80vh;
   }
-  .landing-intro h2 {
+  .landing-greeting {
     font-size: 25px;
   }
   .landing-intro h1 {
     font-size: 40px;
     line-height: 35px;
   }
-  .landing-info h3 {
+  .landing-prefix {
     font-size: 25px;
   }
-  .landing-info h2 {
+  .landing-info .landing-line {
     font-size: 45px;
     line-height: 42px;
   }
-  h2.landing-info-h2 {
+  .landing-info-h2 {
     font-size: 55px;
   }
 }
 @media screen and (min-width: 1025px) {
   .character-model {
     height: 100vh;
+    left: 0;
+    transform: none;
     bottom: 0;
     z-index: 11;
     position: fixed;
@@ -373,21 +375,37 @@ h2.landing-info-h2 {
   }
 }
 @media screen and (min-width: 1600px) {
-  .landing-intro h2 {
+  .landing-greeting {
     font-size: 35px;
   }
   .landing-intro h1 {
     font-size: 60px;
     line-height: 55px;
   }
-  .landing-info h3 {
+  .landing-prefix {
     font-size: 35px;
   }
-  .landing-info h2 {
+  .landing-info .landing-line {
     font-size: 65px;
     line-height: 62px;
   }
-  h2.landing-info-h2 {
+  .landing-info-h2 {
     font-size: 75px;
   }
 }
+
+.landing-role { max-width: 230px; font-size: 16px; color: #c2a4ff; }
+.landing-h2-2, .landing-h2-info-1 { visibility: hidden; }
+
+.landing-info-h2::after { display: none; }
+.hero-preview { position: absolute; left: 50%; top: 48%; transform: translate(-50%, -50%); width: min(32vw, 400px); text-align: center; z-index: 2; }
+.hero-preview img { display: block; width: 100%; height: auto; }
+.scene-toggle { border: 1px solid #8f83a5; background: #17121e; color: #eae5ec; border-radius: 24px; padding: 10px 18px; cursor: pointer; font: inherit; font-size: 14px; }
+.scene-toggle:hover { border-color: #c2a4ff; }
+@media (max-width: 1024px) {
+  .hero-preview { width: 220px; top: 51%; }
+  .scene-toggle { display: none; }
+}
+@media (max-width: 499px) { .hero-preview { width: 180px; top: 56%; } }
+@media (prefers-reduced-motion: reduce) { .scene-toggle { display: none; } }
+@media (max-width: 1024px) { .landing-section { height: min(100svh, 720px); min-height: 600px; } }

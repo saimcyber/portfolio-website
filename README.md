@@ -10,12 +10,12 @@ Islamabad, Pakistan.
 
 Built with React, TypeScript and Vite, with a hand-built 3D hero scene
 (`@react-three/fiber` + `drei`), a GSAP `ScrollSmoother` layout, and a custom
-boot / loading sequence. Deployed on Vercel.
+prerendered portfolio with an on-demand scene. Deployed on Vercel.
 
 ## Highlights
 
 - Code-built 3D hero scene — no downloaded GLB/HDR assets
-- Custom loading screen gated on first render, with an 8s failsafe
+- Prerendered content available immediately; desktop 3D loads on demand
 - Career timeline, horizontally-scrolling project showcase, and a CI/CD-pipeline
   tech-stack diagram, all driven from one content file
 - Security headers and long-lived asset caching configured in `vercel.json`
@@ -47,7 +47,7 @@ www.moncy.dev.
 ```bash
 npm install
 npm run dev      # dev server on http://localhost:5173
-npm run build    # type-check + production build to dist/
+npm run build    # type-check, bundle, and prerender to dist/
 npm run preview  # serve the production build
 ```
 
@@ -90,20 +90,12 @@ rather than throwing, so content edits can't white-screen the section.
 - **GSAP.** `ScrollSmoother` and `SplitText` are imported from the plain
   `gsap` package (v3.13+), which bundles every plugin for free since GSAP's
   April 2025 licensing change. No club membership or `gsap-trial` needed.
-- **Desktop vs mobile.** The 1024px width breakpoint is a JavaScript one, not
-  just CSS: below it the 3D hero moves inside the landing section
-  (`MainContainer.tsx`). The tech-stack section used to be gated on the same
-  check and is now rendered on every viewport.
+- **Desktop vs mobile.** The decorative 3D scene loads on desktop only after selecting **Explore 3D scene**. A lightweight diagram appears first. Mobile and reduced-motion visitors receive the full portfolio without the WebGL bundle.
 - **There are no 3D assets left.** The hero scene builds its environment from
   `<Lightformer>`s and its geometry in code, so nothing is downloaded. The
   original encrypted character GLB, its DRACO decoder and the bone data went
   with the character; `char_enviorment.hdr` went with the tech-stack canvas.
-- **Loading.** The percentage bar is an eased ~2.3s climb started from
-  `LoadingProvider` (via `src/context/loadingProgress.ts`) so it animates from
-  first paint, not after the lazy 3D chunk parses. The actual page reveal is
-  gated on the scene mounting plus a first rendered frame plus a short floor
-  duration, with an 8s failsafe in `Cluster/Scene.tsx` and a 12s last-resort
-  failsafe in `LoadingProvider`.
+- **Rendering.** The build prerenders the React tree into HTML using `scripts/prerender.mjs`; the browser hydrates it. Content and scrolling no longer wait for a loading screen or WebGL. Keep browser APIs inside effects or guard them for build-time rendering.
 - **The tech-stack section used to be the heaviest thing on the site**: a
   Rapier physics canvas at ~2.2MB raw / ~854KB gzipped, ~89% of it the physics
   engine's WebAssembly binary inlined as base64. It was replaced by a static
@@ -111,7 +103,7 @@ rather than throwing, so content edits can't white-screen the section.
   `@react-three/rapier` and `three-stdlib` be dropped. The remaining 3D cost is
   the hero scene alone.
 - **Deployment headers** live in `vercel.json` — long-lived immutable caching
-  for `/assets` and `/images`, plus `nosniff`, `Referrer-Policy`,
+  for hashed `/assets`; revalidating daily caching for `/images`, plus `nosniff`, `Referrer-Policy`,
   `X-Frame-Options` and a `Permissions-Policy` that keeps `geolocation` enabled
   for the opt-in button in the Digital Footprint section.
 - **`@gsap/react`** is pinned in `package-lock.json` to the public npm registry
@@ -125,3 +117,9 @@ rather than throwing, so content edits can't white-screen the section.
 
 See `LICENSE` (Personal Portfolio License v1.0). Its attribution and
 non-commercial terms cover the adapted scroll/intro code noted under **Origin**.
+
+## SEO maintenance
+
+Run `npm run build` and `npm run check:seo` before deployment. The sitemap includes the homepage only because the portfolio is one page; section anchors are internal links, not separate indexed URLs. Keep the Google verification meta tag in `index.html`. Structured data is generated from `src/data/content.ts`. The font is self-hosted through `@fontsource-variable/geist`.
+
+See [the SEO delivery report](docs/seo-report.md) and [the backlink plan](docs/backlink-strategy.md).

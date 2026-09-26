@@ -75,7 +75,7 @@ const TechStack = () => {
     <section className="techstack" id="stack" aria-labelledby="stack-heading">
       <div className="stack-inner">
         <header className="stack-head">
-          <h3 className="stack-eyebrow">My Stack</h3>
+          <p className="stack-eyebrow">My Stack</p>
           <h2 className="stack-title" id="stack-heading">
             Commit to production, <span>one pipeline.</span>
           </h2>
@@ -88,7 +88,7 @@ const TechStack = () => {
                 <span className="stack-index">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <h4>{stage.name}</h4>
+                <h3>{stage.name}</h3>
                 <p>{stage.summary}</p>
               </div>
               <ul className="stack-tools">

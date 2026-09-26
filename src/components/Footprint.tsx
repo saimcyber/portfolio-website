@@ -160,7 +160,7 @@ const Footprint = () => {
       ref={sectionRef}
     >
       <div className="fp-intro">
-        <h3 className="fp-eyebrow">Digital Footprint</h3>
+        <p className="fp-eyebrow">Digital Footprint</p>
         <h2 className="fp-title">
           Here's what I can already see <span>about you.</span>
         </h2>
@@ -216,7 +216,7 @@ const Footprint = () => {
             the lookup - so they say so rather than each blaming the browser
             for withholding data it never had a chance to expose. */}
         <div className="fp-card">
-          <h4>Network</h4>
+          <h3>Network</h3>
           <Row label="Public IP" value={r.network.ip} loading={loading} fallback={netFallback} />
           <Row label="City" value={r.network.city} loading={loading} fallback={netFallback} />
           <Row label="Region" value={r.network.region} loading={loading} fallback={netFallback} />
@@ -230,7 +230,7 @@ const Footprint = () => {
         </div>
 
         <div className="fp-card">
-          <h4>Browser &amp; device</h4>
+          <h3>Browser &amp; device</h3>
           <Row
             label="Browser"
             value={loading ? null : `${r.browser.browser} ${r.browser.browserVersion}`}
@@ -266,7 +266,7 @@ const Footprint = () => {
         </div>
 
         <div className="fp-card">
-          <h4>Hardware</h4>
+          <h3>Hardware</h3>
           <Row label="CPU cores" value={r.hardware.cpuCores} loading={loading} />
           <Row
             label="Device memory"
@@ -303,7 +303,7 @@ const Footprint = () => {
         </div>
 
         <div className="fp-card">
-          <h4>Preferences</h4>
+          <h3>Preferences</h3>
           <Row label="Color scheme" value={r.preferences.colorScheme} loading={loading} />
           <Row
             label="Reduced motion"
@@ -339,7 +339,7 @@ const Footprint = () => {
         </div>
 
         <div className="fp-card fp-card-mid">
-          <h4>Fingerprint</h4>
+          <h3>Fingerprint</h3>
           <Row label="GPU" value={r.fingerprint.webglRenderer} loading={loading} />
           <Row label="Canvas hash" value={r.fingerprint.canvasHash} loading={loading} />
           <Row label="Audio hash" value={r.fingerprint.audioHash} loading={loading} />
@@ -351,7 +351,7 @@ const Footprint = () => {
         </div>
 
         <div className="fp-card fp-card-wide">
-          <h4>WebRTC posture check</h4>
+          <h3>WebRTC posture check</h3>
           {/* `supported && !mdnsObfuscated` used to render "Exposed —" on its
               own whenever no candidate was gathered at all (blocked by an
               extension, no network interface, or simply timed out). A blank

@@ -4,6 +4,7 @@ import react from "@vitejs/plugin-react";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  ssr: { noExternal: ["gsap", "react-icons"] },
   build: {
     target: "es2020",
     rollupOptions: {

@@ -133,10 +133,10 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 13px;
   letter-spacing: 1px;
-  color: #6f6480;
+  color: #a99dbb;
   margin-bottom: 6px;
 }
-.work-info h4 {
+.work-info h3 {
   margin: 0;
   font-size: 22px;
   font-weight: 500;

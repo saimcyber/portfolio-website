@@ -37,7 +37,7 @@
   height: 500px;
   margin-left: 200px;
   position: relative;
-  display: none;
+  display: flex;
 }
 .what-content {
   width: 450px;
@@ -73,7 +73,7 @@
   font-weight: 200;
   letter-spacing: 0.7px;
 }
-.what-content h4 {
+.what-content .what-label {
   font-weight: 300;
   letter-spacing: 1px;
   margin: 0px;
@@ -208,7 +208,7 @@
   height: 100%;
   overflow: hidden;
 }
-.what-content-in h5 {
+.what-content-in .what-tools-label {
   font-weight: 300;
   opacity: 0.5;
   font-size: 12px;
@@ -340,13 +340,13 @@
     margin-left: 0px;
     height: 450px;
   }
-  .what-content h5,
+  .what-content .what-tools-label,
   .what-content-flex {
     opacity: 0;
     transition: 0.3s;
   }
-  .what-noTouch:hover h5,
-  .what-content-active h5,
+  .what-noTouch:hover .what-tools-label,
+  .what-content-active .what-tools-label,
   .what-noTouch:hover .what-content-flex,
   .what-content-active .what-content-flex {
     opacity: 1;
@@ -390,4 +390,16 @@
     font-size: 7rem;
     line-height: 6.8rem;
   }
+}
+
+/* Touch and keyboard readers can read every skill without a hover gesture. */
+@media (max-width: 900px) {
+ .what-box:last-child, .what-box-in { height: auto; }
+ .what-box-in { gap: 24px; }
+ .what-content, .what-content-active, .what-content.what-sibling,
+ .what-noTouch:hover, .what-box-in:hover .what-noTouch:not(:hover) {
+   height: auto; min-height: 0; padding: 28px 24px;
+ }
+ .what-content .what-tools-label, .what-content-flex { opacity: 1; }
+ .what-content p { font-size: 14px; line-height: 1.6; }
 }

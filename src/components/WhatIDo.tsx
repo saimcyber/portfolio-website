@@ -29,10 +29,10 @@ const WhatIDo = () => {
     };
   }, []);
   return (
-    <div className="whatIDO">
+    <div className="whatIDO" id="services">
       <div className="what-box">
         <h2 className="title">
-          W<span className="hat-h2">HAT</span>
+          W<span className="hat-h2">HAT</span>{" "}
           <div>
             I<span className="do-h2"> DO</span>
           </div>
@@ -92,9 +92,9 @@ const WhatIDo = () => {
 
             <div className="what-content-in">
               <h3>{skillCards[0].title}</h3>
-              <h4>Description</h4>
+              <p className="what-label">Description</p>
               <p>{skillCards[0].description}</p>
-              <h5>Skillset & tools</h5>
+              <p className="what-tools-label">Skillset &amp; tools</p>
               <div className="what-content-flex">
                 {skillCards[0].tags.map((tag) => (
                   <div className="what-tags" key={tag}>
@@ -125,9 +125,9 @@ const WhatIDo = () => {
             <div className="what-corner"></div>
             <div className="what-content-in">
               <h3>{skillCards[1].title}</h3>
-              <h4>Description</h4>
+              <p className="what-label">Description</p>
               <p>{skillCards[1].description}</p>
-              <h5>Skillset & tools</h5>
+              <p className="what-tools-label">Skillset &amp; tools</p>
               <div className="what-content-flex">
                 {skillCards[1].tags.map((tag) => (
                   <div className="what-tags" key={tag}>

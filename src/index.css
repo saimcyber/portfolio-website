@@ -1,9 +1,11 @@
-/* The Geist webfont is requested from index.html with a preconnect, not with an
-   `@import` here. An `@import` at the top of the entry stylesheet cannot start
-   until this file itself has downloaded and parsed, which serialised the load
-   as HTML -> app CSS -> Google's font CSS -> the font files. The <link> in the
-   document head is discovered by the preload scanner instead, so the font CSS
-   and the app CSS download in parallel. */
+/* Self-host the Latin variable font to avoid a render-blocking third-party stylesheet. */
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2") format("woff2");
+}
 
 :root {
   font-family: "Geist", sans-serif;
@@ -37,7 +39,7 @@ h6 {
   font-family: "Geist", sans-serif;
 }
 body {
-  overflow: hidden;
+  overflow-y: auto;
 }
 a {
   color: inherit;
@@ -63,7 +65,7 @@ main {
 body {
   margin: 0;
   height: auto;
-  background-color: #000;
+  background-color: var(--backgroundColor);
   flex-grow: 1;
   --cWidth: calc(100% - 30px);
   --cMaxWidth: 1920px;
@@ -161,3 +163,20 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Semantic links and narrow-screen safeguards. */
+.section-links { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-top: 24px; font-size: 15px; }
+.section-links a { text-decoration: underline; text-underline-offset: 4px; }
+.skip-link { position: fixed; top: 8px; left: 8px; transform: translateY(-200%); z-index: 10001; background: #0b080c; padding: 12px; }
+.skip-link:focus { transform: none; }
+[id] { scroll-margin-top: 120px; }
+:focus-visible { outline: 2px solid #c2a4ff; outline-offset: 5px; }
+img { max-width: 100%; }
+@media (max-width: 499px) {
+ .landing-intro { top: 160px; }
+ .landing-section { min-height: 600px; }
+ .contact-email { overflow-wrap: anywhere; }
+ .career-info-in, .career-role { min-width: 0; }
+ .career-organization { overflow-wrap: anywhere; }
+}
+@media (prefers-reduced-motion: reduce) { .what-content-in { animation: none; opacity: 1; } }

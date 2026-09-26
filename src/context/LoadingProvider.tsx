@@ -6,8 +6,8 @@ import {
   useMemo,
   useState,
 } from "react";
-import Loading from "../components/Loading";
-import { getProgressMachine, peekProgressMachine } from "./loadingProgress";
+
+
 
 interface LoadingType {
   isLoading: boolean;
@@ -18,26 +18,11 @@ interface LoadingType {
 export const LoadingContext = createContext<LoadingType | null>(null);
 
 export const LoadingProvider = ({ children }: PropsWithChildren) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [loading, setLoading] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [, setLoading] = useState(0);
 
-  // Start the eased climb on first paint, not when the lazy ~950KB 3D chunk
-  // finishes parsing (where it used to live). The climb is a fixed curve with
-  // no dependency on scene readiness - Scene still calls `loaded()` on this
-  // same singleton to finish to 100% and reveal the page.
-  useEffect(() => {
-    getProgressMachine(setLoading);
-
-    // Last-resort failsafe: if the Cluster chunk never downloads (offline mid
-    // load, a hard network failure) Scene's own ready gate never fires. Drive
-    // the bar to 100% anyway so Loading.tsx runs its normal hand-off instead
-    // of the loader sitting at ~92% forever. Scene's happy path completes well
-    // under this, so it only ever fires on a genuine failure.
-    const failsafe = window.setTimeout(() => {
-      peekProgressMachine()?.clear();
-    }, 12000);
-    return () => window.clearTimeout(failsafe);
-  }, []);
+  // Content must never wait for the decorative scene or a progress timer.
+  useEffect(() => { setIsLoading(false); }, []);
 
   // `setIsLoading`/`setLoading` are stable, so this only changes when the gate
   // itself flips - previously a new object every render, which re-rendered
@@ -50,7 +35,7 @@ export const LoadingProvider = ({ children }: PropsWithChildren) => {
 
   return (
     <LoadingContext.Provider value={value}>
-      {isLoading && <Loading percent={loading} />}
+
       <main className="main-body">{children}</main>
     </LoadingContext.Provider>
   );

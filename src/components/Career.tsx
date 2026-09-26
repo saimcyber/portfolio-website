@@ -17,10 +17,10 @@ const Career = () => {
             <div className="career-info-box" key={entry.role}>
               <div className="career-info-in">
                 <div className="career-role">
-                  <h4>{entry.role}</h4>
-                  <h5>{entry.organization}</h5>
+                  <h3 className="career-role-title">{entry.role}</h3>
+                  <p className="career-organization">{entry.organization}</p>
                 </div>
-                <h3>{entry.period}</h3>
+                <p className="career-period">{entry.period}</p>
               </div>
               <p>{entry.description}</p>
             </div>

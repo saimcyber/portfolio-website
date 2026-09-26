@@ -19,9 +19,12 @@ const isCoarsePointer =
   typeof window.matchMedia === "function" &&
   window.matchMedia("(pointer: coarse)").matches;
 
-const MainContainer = ({ children }: PropsWithChildren) => {
+const MainContainer = ({ children, sceneEnabled, onEnableScene }: PropsWithChildren<{
+  sceneEnabled: boolean;
+  onEnableScene: () => void;
+}>) => {
   const [isDesktopView, setIsDesktopView] = useState<boolean>(
-    window.innerWidth > 1024
+    false
   );
   useEffect(() => {
     const resizeHandler = () => {
@@ -45,7 +48,8 @@ const MainContainer = ({ children }: PropsWithChildren) => {
       {/* The custom cursor is invisible on touch devices (--size: 0) but its
           effect still ran a permanent rAF loop + document mousemove listener.
           Skip it entirely where there's no fine pointer. */}
-      {!isCoarsePointer && <Cursor />}
+      {isDesktopView && !isCoarsePointer && <Cursor />}
+      <a className="skip-link" href="#about">Skip to content</a>
       <Navbar />
       <SocialIcons />
       <Terminal />
@@ -57,7 +61,7 @@ const MainContainer = ({ children }: PropsWithChildren) => {
                 crafted GSAP sequence (rig rotates away, gradient mask on
                 .character-model, sliding text) - a static line there would
                 compete with a designed transition rather than support one. */}
-            <Landing>{!isDesktopView && children}</Landing>
+            <Landing sceneEnabled={sceneEnabled} onEnableScene={onEnableScene}>{!isDesktopView && children}</Landing>
             <About />
             <div className="section-divider" />
             <WhatIDo />

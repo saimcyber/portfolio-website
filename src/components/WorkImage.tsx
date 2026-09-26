@@ -1,6 +1,6 @@
 interface Props {
   image: string;
-  alt?: string;
+  alt: string;
 }
 
 /**
@@ -13,7 +13,7 @@ interface Props {
 const WorkImage = ({ image, alt }: Props) => {
   return (
     <div className="work-image">
-      <img src={image} alt={alt} loading="lazy" decoding="async" />
+      <img src={image} alt={image.includes("placeholder") ? "" : alt} width={640} height={427} loading="lazy" decoding="async" />
     </div>
   );
 };

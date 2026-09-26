@@ -7,7 +7,7 @@ const Contact = () => {
   return (
     <div className="contact-section" id="contact">
       <div className="contact-inner">
-        <h3 className="contact-eyebrow">Get in touch</h3>
+        <p className="contact-eyebrow">Get in touch</p>
         <h2 className="contact-title">Let's build something secure.</h2>
 
         <a
@@ -70,7 +70,7 @@ const Contact = () => {
 
         <div className="contact-bottom">
           <p>
-            <MdCopyright /> {new Date().getFullYear()} {personal.fullName}
+            <MdCopyright aria-hidden="true" /> {new Date().getFullYear()} {personal.fullName}
             <span className="contact-bottom-dot" aria-hidden="true">
               &middot;
             </span>

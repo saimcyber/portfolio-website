@@ -29,8 +29,11 @@ const Navbar = () => {
       ignoreMobileResize: true,
     });
 
-    smoother.scrollTop(0);
-    smoother.paused(true);
+    // Preserve direct section links and never pause reading for visual effects.
+    if (window.location.hash) {
+      const target = document.getElementById(window.location.hash.slice(1));
+      if (target) smoother.scrollTo(target, false, "top 100px");
+    }
 
     // Both of these used to be added with no matching cleanup, so a remount
     // (React StrictMode does one in development) left the previous set bound
@@ -40,7 +43,10 @@ const Navbar = () => {
         e.preventDefault();
         const elem = e.currentTarget as HTMLAnchorElement;
         const section = elem.getAttribute("data-href");
-        smoother.scrollTo(section, true, "top top");
+        if (section) {
+          history.pushState(null, "", section);
+          smoother.scrollTo(section, true, "top 100px");
+        }
       }
     };
     const links = Array.from(
@@ -59,14 +65,15 @@ const Navbar = () => {
       links.forEach((element) =>
         element.removeEventListener("click", onLinkClick)
       );
+      smoother?.kill();
       onResize.cancel();
       window.removeEventListener("resize", onResize);
     };
   }, []);
   return (
     <>
-      <div className="header">
-        <a href="/#" className="navbar-title" data-cursor="disable">
+      <nav className="header" aria-label="Main navigation">
+        <a href="/" className="navbar-title" data-cursor="disable">
           {personal.fullName}
         </a>
         <a
@@ -98,7 +105,7 @@ const Navbar = () => {
             </a>
           </li>
         </ul>
-      </div>
+      </nav>
 
       <div className="landing-circle1"></div>
       <div className="landing-circle2"></div>

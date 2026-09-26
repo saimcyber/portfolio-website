@@ -17,7 +17,7 @@
   border: 1px solid #2c2338;
   background-color: rgba(11, 8, 12, 0.7);
   backdrop-filter: blur(6px);
-  color: #6f6480;
+  color: #a99dbb;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 11px;
   letter-spacing: 1px;
@@ -113,7 +113,7 @@
   margin-left: 6px;
   font-size: 11px;
   letter-spacing: 0.6px;
-  color: #6f6480;
+  color: #a99dbb;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 .term-close {
@@ -121,7 +121,7 @@
   background: none;
   border: 1px solid #2c2338;
   border-radius: 5px;
-  color: #6f6480;
+  color: #a99dbb;
   font-family: inherit;
   font-size: 10px;
   letter-spacing: 1px;
@@ -165,7 +165,7 @@
   color: #c2a4ff;
 }
 .term-line.k-dim {
-  color: #6f6480;
+  color: #a99dbb;
 }
 .term-line.k-warn {
   color: #ffb066;

@@ -24,7 +24,7 @@ let refreshBound = false;
 
 export default function setSplitText() {
   ScrollTrigger.config({ ignoreMobileResize: true });
-  if (window.innerWidth < 900) return;
+  if (window.innerWidth < 900 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const paras: NodeListOf<ParaElement> = document.querySelectorAll(".para");
   const titles: NodeListOf<ParaElement> = document.querySelectorAll(".title");
 
@@ -42,14 +42,15 @@ export default function setSplitText() {
 
     para.split = new SplitText(para, {
       type: "lines,words",
+      aria: "none", // Paragraphs cannot take aria-label; keep their text readable.
       linesClass: "split-line",
     });
 
     para.anim = gsap.fromTo(
       para.split.words,
-      { autoAlpha: 0, y: 80 },
+      { opacity: 0, y: 80 },
       {
-        autoAlpha: 1,
+        opacity: 1,
         scrollTrigger: {
           trigger: para.parentElement?.parentElement,
           toggleActions: ToggleAction,
@@ -73,9 +74,9 @@ export default function setSplitText() {
     });
     title.anim = gsap.fromTo(
       title.split.chars,
-      { autoAlpha: 0, y: 80, rotate: 10 },
+      { opacity: 0, y: 80, rotate: 10 },
       {
-        autoAlpha: 1,
+        opacity: 1,
         scrollTrigger: {
           trigger: title.parentElement?.parentElement,
           toggleActions: ToggleAction,

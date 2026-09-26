@@ -29,7 +29,8 @@ const ScrollCue = () => {
   const elRef = useRef<HTMLDivElement>(null);
   const [everSettled, setEverSettled] = useState(false);
   const [nearTop, setNearTop] = useState(true);
-  const reduced = useRef(prefersReducedMotion());
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => setReduced(prefersReducedMotion()), []);
 
   // One-time: the settle delay only ever applies right after the intro
   // plays, never on a later reveal (e.g. scrolling back to the top).
@@ -67,7 +68,7 @@ const ScrollCue = () => {
   return (
     <div
       ref={elRef}
-      className={`scroll-cue${reduced.current ? " scroll-cue-static" : ""}`}
+      className={`scroll-cue${reduced ? " scroll-cue-static" : ""}`}
       style={{ opacity: 0 }}
       aria-hidden="true"
     >

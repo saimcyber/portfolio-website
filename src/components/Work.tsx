@@ -167,7 +167,7 @@ const Work = () => {
               <WorkImage image={project.image} alt={project.name} />
               <div className="work-info">
                 <span className="work-index">0{index + 1}</span>
-                <h4>{project.name}</h4>
+                <h3>{project.name}</h3>
                 <p className="work-category">{project.category}</p>
                 <div className="work-tools">
                   {project.tools.split(",").map((tool) => (
