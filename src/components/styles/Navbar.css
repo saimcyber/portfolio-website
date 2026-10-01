@@ -105,3 +105,16 @@
     font-size: 18px;
   }
 }
+
+@media (max-width: 1400px) {
+  .navbar-connect { display: none; }
+  .header { grid-template-columns: auto 1fr; }
+  .header ul { grid-column: 2; column-gap: 28px; }
+}
+@media (max-width: 700px) {
+  .header { width: calc(100% - 32px); row-gap: 16px; padding: 16px 0; }
+  .header ul { grid-column: 1 / -1; justify-self: stretch; flex-direction: row; justify-content: space-between; column-gap: 10px; font-size: 11px; }
+  .nav-fade { height: 125px; }
+}
+
+.header { background: var(--backgroundColor); box-shadow: 0 0 0 16px var(--backgroundColor); }

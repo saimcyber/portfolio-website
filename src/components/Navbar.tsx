@@ -1,14 +1,8 @@
 import { useEffect } from "react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import HoverLinks from "./HoverLinks";
-import { gsap } from "gsap";
-import { ScrollSmoother } from "gsap/ScrollSmoother";
 import { personal } from "../data/content";
-import { debounce } from "./utils/debounce";
 import "./styles/Navbar.css";
 
-gsap.registerPlugin(ScrollSmoother, ScrollTrigger);
-export let smoother: ScrollSmoother;
 
 const Navbar = () => {
   useEffect(() => {
@@ -16,64 +10,53 @@ const Navbar = () => {
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    smoother = ScrollSmoother.create({
-      wrapper: "#smooth-wrapper",
-      content: "#smooth-content",
-      // 1.7 meant content took ~1.8s to catch up after a fast scroll, which
-      // read as text and animations arriving late. 1.0 keeps the smooth feel
-      // but roughly halves that lag. 0 = native scroll for reduced-motion.
-      smooth: reducedMotion ? 0 : 1,
-      speed: 1.7,
-      effects: true,
-      autoResize: true,
-      ignoreMobileResize: true,
-    });
 
-    // Preserve direct section links and never pause reading for visual effects.
-    if (window.location.hash) {
-      const target = document.getElementById(window.location.hash.slice(1));
-      if (target) smoother.scrollTo(target, false, "top 100px");
-    }
-
-    // Both of these used to be added with no matching cleanup, so a remount
-    // (React StrictMode does one in development) left the previous set bound
-    // and every nav click ran the scroll twice.
-    const onLinkClick = (e: Event) => {
-      if (window.innerWidth > 1024) {
-        e.preventDefault();
-        const elem = e.currentTarget as HTMLAnchorElement;
-        const section = elem.getAttribute("data-href");
-        if (section) {
-          history.pushState(null, "", section);
-          smoother.scrollTo(section, true, "top 100px");
-        }
+    const navigate = (hash: string, animate: boolean, focus = false) => {
+      const target = document.getElementById(hash.slice(1) || "landingDiv");
+      if (!target) return;
+      const offset = hash && hash !== "#landingDiv" ? 110 : 0;
+      window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: animate && !reducedMotion ? "smooth" : "instant" });
+      if (focus) {
+        target.setAttribute("tabindex", "-1");
+        target.focus({ preventScroll: true });
       }
     };
-    const links = Array.from(
-      document.querySelectorAll<HTMLAnchorElement>(".header ul a")
-    );
-    links.forEach((element) => element.addEventListener("click", onLinkClick));
-
-    // Debounced: a drag-resize fires `resize` continuously and a deep
-    // ScrollSmoother refresh is expensive. Once, after the drag settles.
-    const onResize = debounce(() => {
-      ScrollSmoother.refresh(true);
-    }, 200);
-    window.addEventListener("resize", onResize);
+    const previousRestoration = history.scrollRestoration;
+    history.scrollRestoration = "manual";
+    const onHistory = () => navigate(window.location.hash, false);
+    const initialFrame = requestAnimationFrame(onHistory);
+    const onLinkClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const link = (e.target as Element).closest<HTMLAnchorElement>('a[href]');
+      if (!link || link.target || link.hasAttribute("download")) return;
+      const url = new URL(link.href, window.location.href);
+      if (url.origin !== window.location.origin || url.pathname !== window.location.pathname) return;
+      if (!url.hash && !link.hasAttribute("data-home")) return;
+      const target = document.getElementById(url.hash.slice(1) || "landingDiv");
+      if (!target) return;
+      e.preventDefault();
+      const destination = url.hash === "#landingDiv" ? url.pathname : url.pathname + url.hash;
+      if (destination !== window.location.pathname + window.location.hash) history.pushState(null, "", destination);
+      navigate(url.hash, true, true);
+    };
+    document.addEventListener("click", onLinkClick);
+    window.addEventListener("load", onHistory, { once: true });
+    window.addEventListener("popstate", onHistory);
+    window.addEventListener("hashchange", onHistory);
 
     return () => {
-      links.forEach((element) =>
-        element.removeEventListener("click", onLinkClick)
-      );
-      smoother?.kill();
-      onResize.cancel();
-      window.removeEventListener("resize", onResize);
+      cancelAnimationFrame(initialFrame);
+      history.scrollRestoration = previousRestoration;
+      window.removeEventListener("load", onHistory);
+      document.removeEventListener("click", onLinkClick);
+      window.removeEventListener("popstate", onHistory);
+      window.removeEventListener("hashchange", onHistory);
     };
   }, []);
   return (
     <>
       <nav className="header" aria-label="Main navigation">
-        <a href="/" className="navbar-title" data-cursor="disable">
+        <a href="/" data-home aria-label="Saim Zaib home" className="navbar-title" data-cursor="disable">
           {personal.fullName}
         </a>
         <a
@@ -84,6 +67,7 @@ const Navbar = () => {
           {personal.email}
         </a>
         <ul>
+          <li><a href="#landingDiv"><HoverLinks text="HOME" /></a></li>
           <li>
             <a data-href="#about" href="#about">
               <HoverLinks text="ABOUT" />

@@ -1,14 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { Environment, Lightformer } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import gsap from "gsap";
-import { useLoading } from "../../context/LoadingProvider";
-import { getProgressMachine, setProgress } from "../../context/loadingProgress";
-import { setClusterTimeline, setAllTimeline } from "../utils/GsapScroll";
-import { debounce } from "../utils/debounce";
 import { setSimulationEnabled } from "./clusterStore";
 import ClusterRig from "./ClusterRig";
 
@@ -24,43 +18,17 @@ function cameraForWidth(w: number) {
     : { position: [0, 0.2, 13.5] as const, fov: 40 };
 }
 
-/** Signals that the scene graph is mounted; paired with the first rendered
- *  frame to open the loading gate. */
-function ReadySignal({ onReady }: { onReady: () => void }) {
-  useEffect(() => {
-    onReady();
-  }, [onReady]);
-  return null;
-}
-
 function SceneContents({
   rigRef,
-  cameraRef,
   mouseRef,
-  onReady,
   reduced,
 }: {
   rigRef: React.MutableRefObject<THREE.Group | null>;
-  cameraRef: React.MutableRefObject<THREE.PerspectiveCamera | null>;
   mouseRef: React.MutableRefObject<{ x: number; y: number; moved: boolean }>;
-  onReady: () => void;
   reduced: boolean;
 }) {
-  const { camera, scene } = useThree();
-  const firstFrame = useRef(false);
-
-  useEffect(() => {
-    cameraRef.current = camera as THREE.PerspectiveCamera;
-    // Lights come up only once the intro plays; start dark.
-    scene.environmentIntensity = 0;
-  }, [camera, scene, cameraRef]);
-
-  useFrame(() => {
-    if (!firstFrame.current) {
-      firstFrame.current = true;
-      onReady();
-    }
-  });
+  const { scene } = useThree();
+  useEffect(() => { scene.environmentIntensity = 1.25; }, [scene]);
 
   return (
     <>
@@ -105,7 +73,6 @@ function SceneContents({
           rotation-x={Math.PI / 2}
         />
       </Environment>
-      <ReadySignal onReady={onReady} />
 
       <ClusterRig rigRef={rigRef} mouseRef={mouseRef} reduced={reduced} />
 
@@ -122,159 +89,31 @@ function SceneContents({
 }
 
 const Scene = () => {
-  const { setLoading } = useLoading();
   const rigRef = useRef<THREE.Group | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const modelRef = useRef<HTMLDivElement>(null);
-  // Whether the hero canvas is anywhere near the viewport. Once the scroll
-  // timeline has driven `.character-model` fully off-screen (past "What I Do"),
-  // the canvas + its full-screen bloom pass were still rendering every frame
-  // for the entire rest of the page. Flipping `frameloop` to "never" stops all
-  // of that until the visitor scrolls back up.
-  const [heroVisible, setHeroVisible] = useState(true);
-  // `moved` guards the hover raycast: until the pointer actually moves, the
-  // ref sits at (0,0), which is screen centre - that would permanently
-  // "hover" whichever node happens to be in the middle of the viewport.
   const mouseRef = useRef({ x: 0, y: 0, moved: false });
-
-  const startedRef = useRef(false);
-  const readyCountRef = useRef(0);
-  const progressRef = useRef<ReturnType<typeof setProgress> | null>(null);
+  const [heroVisible, setHeroVisible] = useState(true);
   const cam = useMemo(() => cameraForWidth(window.innerWidth), []);
   const reduced = useMemo(() => prefersReducedMotion(), []);
-  // Tracks which side of the 1024px breakpoint the camera/timelines were last
-  // built for - see onResize below for why this matters.
-  const isDesktopRef = useRef(window.innerWidth > 1024);
-
-  if (!progressRef.current) {
-    // LoadingProvider has already created and started this singleton; the
-    // callback here is ignored if so. Kept as a fallback for any mount order.
-    progressRef.current = getProgressMachine((v) => setLoading(v));
-  }
-
-  /**
-   * The old scene gated loading on a 1.5MB model download. Nothing is
-   * downloaded now beyond the HDR, so without a floor duration the loader
-   * would snap to 100% and the boot sequence would never be readable.
-   */
-  const handleReady = (force = false) => {
-    readyCountRef.current += 1;
-    if ((!force && readyCountRef.current < 2) || startedRef.current) return;
-    startedRef.current = true;
-
-    setSimulationEnabled(!reduced);
-
-    // Build the scroll timelines now, while the loading screen still covers
-    // the page. Creating them triggers a ScrollTrigger refresh - layout reads
-    // plus a re-split of every .para/.title - and doing that at intro time
-    // put a visible hitch right in the middle of the reveal.
-    buildTimelines();
-
-    const MIN_MS = 2600;
-    const elapsed = performance.now() - mountedAt.current;
-    const wait = Math.max(0, MIN_MS - elapsed);
-
-    window.setTimeout(() => {
-      progressRef.current!.loaded().then(() => {
-        setTimeout(() => {
-          const scene = rigRef.current?.parent;
-          if (scene) {
-            gsap.to(scene, {
-              environmentIntensity: 1.25,
-              duration: 2,
-              ease: "power2.inOut",
-            });
-          }
-          gsap.to(".character-rim", {
-            y: "-50%",
-            opacity: 0.34,
-            delay: 0.2,
-            duration: 2,
-          });
-        }, 300);
-      });
-    }, wait);
-  };
-
-  const mountedAt = useRef(performance.now());
-
-  const buildTimelines = () => {
-    if (!cameraRef.current) return;
-    setClusterTimeline(rigRef.current, cameraRef.current);
-    setAllTimeline();
-  };
 
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
-      mouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouseRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
-      mouseRef.current.moved = true;
+      const bounds = modelRef.current?.getBoundingClientRect();
+      if (!bounds) return;
+      mouseRef.current = {
+        x: ((e.clientX - bounds.left) / bounds.width) * 2 - 1,
+        y: -((e.clientY - bounds.top) / bounds.height) * 2 + 1,
+        moved: e.clientX >= bounds.left && e.clientX <= bounds.right && e.clientY >= bounds.top && e.clientY <= bounds.bottom,
+      };
     };
-    document.addEventListener("mousemove", onMouseMove);
-
-    /**
-     * This used to kill and rebuild every ScrollTrigger (except Work's pin)
-     * on EVERY resize, unconditionally. That's redundant AND actively
-     * harmful for the common case: Navbar.tsx already calls
-     * `ScrollSmoother.refresh(true)` on every resize, and every trigger in
-     * GsapScroll.ts already has `invalidateOnRefresh: true`, so a plain
-     * refresh already re-anchors each scrub tween's start value to whatever
-     * the current scroll position needs - no destruction required.
-     *
-     * Killing and recreating tl1/tl2/tl3 on top of that discarded their live
-     * state and rebuilt from a fresh baseline instead - confirmed via a
-     * Puppeteer resize test: scroll partway into the hero (rig.rotation and
-     * `.character-model`'s x-transform mid-scrub), then resize the *width*
-     * only (e.g. a Windows snap from fullscreen to half-screen, still well
-     * above the 1024px breakpoint on both sides) - the transform reset to
-     * its pre-scroll baseline until scrolled again, i.e. exactly the
-     * "animation jumps/resets on resize" bug being fixed here.
-     *
-     * The only case that genuinely needs a rebuild is crossing the
-     * desktop/mobile breakpoint, because setClusterTimeline() branches into
-     * a structurally different animation graph on each side of it (desktop
-     * pins the camera/rig to a 3D scroll sequence; mobile skips that
-     * entirely). Everything else is handled by the refresh Navbar.tsx
-     * already performs.
-     */
-    const onResize = () => {
-      const nowDesktop = window.innerWidth > 1024;
-      const c = cameraRef.current;
-      if (c && isDesktopRef.current !== nowDesktop) {
-        const next = cameraForWidth(window.innerWidth);
-        c.position.set(next.position[0], next.position[1], next.position[2]);
-        c.fov = next.fov;
-        c.updateProjectionMatrix();
-      }
-      if (!startedRef.current) return;
-      if (isDesktopRef.current === nowDesktop) return;
-      isDesktopRef.current = nowDesktop;
-      // Work no longer has a ScrollTrigger of its own (it's a native
-      // horizontal scroller now, not a pinned/scrubbed one), so there's
-      // nothing left to preserve here - kill everything and rebuild.
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-      buildTimelines();
-    };
-    // Coalesced: a drag-resize fires dozens of `resize` events and the
-    // breakpoint-cross rebuild (plus Navbar's ScrollSmoother.refresh) is heavy.
-    // The camera fov nudge waiting an extra 150ms is imperceptible.
-    const onResizeDebounced = debounce(onResize, 150);
-    window.addEventListener("resize", onResizeDebounced);
-
-    // Failsafe: the ready gate needs the scene mounted plus a first rendered
-    // frame. If WebGL context creation fails or a frame never lands, the
-    // loader would sit at ~90% forever. Start regardless.
-    const failsafe = window.setTimeout(() => {
-      if (!startedRef.current) handleReady(true);
-    }, 8000);
-
-    return () => {
-      window.clearTimeout(failsafe);
-      document.removeEventListener("mousemove", onMouseMove);
-      onResizeDebounced.cancel();
-      window.removeEventListener("resize", onResizeDebounced);
-    };
+    document.addEventListener("mousemove", onMouseMove, { passive: true });
+    return () => document.removeEventListener("mousemove", onMouseMove);
   }, []);
+
+  useEffect(() => {
+    setSimulationEnabled(heroVisible && !reduced);
+    return () => setSimulationEnabled(false);
+  }, [heroVisible, reduced]);
 
   // Pause the render loop whenever the hero canvas is scrolled out of view.
   useEffect(() => {
@@ -323,9 +162,7 @@ const Scene = () => {
         >
           <SceneContents
             rigRef={rigRef}
-            cameraRef={cameraRef}
             mouseRef={mouseRef}
-            onReady={handleReady}
             reduced={reduced}
           />
         </Canvas>

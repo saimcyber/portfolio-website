@@ -250,3 +250,10 @@
     padding: 22px 22px 26px;
   }
 }
+
+/* Keep explicit controls for touch, keyboard and assistive input at every width. */
+.work-controls, .work-dots { display: flex; }
+.work-dot { width: 44px; height: 44px; padding: 0; border: 0; background: radial-gradient(circle, #766487 0 4px, transparent 5px); }
+.work-dot:hover { background: radial-gradient(circle, #a191b5 0 5px, transparent 6px); }
+.work-dot.is-active { background: radial-gradient(circle, var(--accentColor) 0 5px, transparent 6px); transform: none; }
+@media (max-width: 500px) { .work-heading-row { gap: 12px; } .work-section h2 { font-size: 32px; } .work-arrow { width: 40px; height: 40px; } }

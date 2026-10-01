@@ -409,3 +409,12 @@ body.hero-offscreen .landing-circle2 {
 @media (max-width: 499px) { .hero-preview { width: 180px; top: 56%; } }
 @media (prefers-reduced-motion: reduce) { .scene-toggle { display: none; } }
 @media (max-width: 1024px) { .landing-section { height: min(100svh, 720px); min-height: 600px; } }
+
+/* Keep the optional scene in the hero's own scrolling and clipping context. */
+.landing-section { isolation: isolate; overflow: clip; }
+.character-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.character-container .character-model { position: absolute; inset: 8% 0 8%; width: 100%; height: 84%; max-height: none; max-width: none; transform: none; }
+.character-model::before, .character-model::after { display: none; }
+.character-rim { opacity: .34; transform: translate(-50%, -10%); }
+.hero-preview { z-index: 10; pointer-events: none; }
+.hero-preview .scene-toggle { pointer-events: auto; }

@@ -10,7 +10,7 @@ const App = () => {
   return (
     <>
       <LoadingProvider>
-          <MainContainer sceneEnabled={showScene} onEnableScene={() => setShowScene(true)}>
+          <MainContainer sceneEnabled={showScene} onEnableScene={() => setShowScene((enabled) => !enabled)}>
             <SceneBoundary>
             <Suspense fallback={null}>
               {showScene && <ClusterModel />}

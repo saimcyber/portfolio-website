@@ -12,7 +12,6 @@ import Terminal from "./Terminal";
 import WhatIDo from "./WhatIDo";
 import TechStack from "./TechStack";
 import Work from "./Work";
-import setSplitText from "./utils/splitText";
 
 const isCoarsePointer =
   typeof window !== "undefined" &&
@@ -28,12 +27,9 @@ const MainContainer = ({ children, sceneEnabled, onEnableScene }: PropsWithChild
   );
   useEffect(() => {
     const resizeHandler = () => {
-      setSplitText();
       setIsDesktopView(window.innerWidth > 1024);
     };
-    // Run once immediately to wire up the paragraph reveals, then debounce:
-    // `setSplitText()` reverts and re-splits every .para/.title and rebuilds
-    // their ScrollTriggers, which must not happen per `resize` event.
+    // Only update the scene/cursor breakpoint after a resize settles.
     resizeHandler();
     const onResize = debounce(resizeHandler, 150);
     window.addEventListener("resize", onResize);
@@ -53,15 +49,10 @@ const MainContainer = ({ children, sceneEnabled, onEnableScene }: PropsWithChild
       <Navbar />
       <SocialIcons />
       <Terminal />
-      {isDesktopView && children}
       <div id="smooth-wrapper">
         <div id="smooth-content">
           <div className="container-main">
-            {/* Landing -> About has no divider: that transition is already a
-                crafted GSAP sequence (rig rotates away, gradient mask on
-                .character-model, sliding text) - a static line there would
-                compete with a designed transition rather than support one. */}
-            <Landing sceneEnabled={sceneEnabled} onEnableScene={onEnableScene}>{!isDesktopView && children}</Landing>
+            <Landing sceneEnabled={sceneEnabled && isDesktopView} onEnableScene={onEnableScene}>{isDesktopView && children}</Landing>
             <About />
             <div className="section-divider" />
             <WhatIDo />

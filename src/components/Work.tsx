@@ -68,13 +68,15 @@ const Work = () => {
       ? parseFloat(getComputedStyle(el).columnGap || "0")
       : 0;
     const step = (card?.getBoundingClientRect().width ?? el.clientWidth) + gap;
-    el.scrollBy({ left: step * dir, behavior: "smooth" });
+    el.scrollBy({ left: step * dir, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
   };
 
   const scrollToCard = (index: number) => {
     const el = trackRef.current;
     const card = el?.querySelectorAll<HTMLElement>(".work-box")[index];
-    card?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+    if (!el || !card) return;
+    const first = el.querySelector<HTMLElement>(".work-box");
+    el.scrollTo({ left: card.offsetLeft - (first?.offsetLeft ?? 0), behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
   };
 
   /**
@@ -161,7 +163,7 @@ const Work = () => {
           </div>
         </div>
 
-        <div className="work-flex" ref={trackRef}>
+        <div className="work-flex" ref={trackRef} tabIndex={0} role="region" aria-label="Project carousel">
           {projects.map((project, index) => (
             <div className="work-box" key={project.name}>
               <WorkImage image={project.image} alt={project.name} />
@@ -200,6 +202,7 @@ const Work = () => {
               className={`work-dot${index === activeIndex ? " is-active" : ""}`}
               onClick={() => scrollToCard(index)}
               aria-label={`Go to ${project.name}`}
+              aria-current={index === activeIndex ? "true" : undefined}
               data-cursor="disable"
             />
           ))}

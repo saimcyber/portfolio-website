@@ -133,6 +133,7 @@ const Terminal = () => {
   const histIdx = useRef(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const push = useCallback((next: Line[]) => {
     setLines((prev) => [...prev, ...next]);
@@ -246,7 +247,25 @@ const Terminal = () => {
   }, [open]);
 
   useEffect(() => {
-    if (open) inputRef.current?.focus();
+    if (!open) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    inputRef.current?.focus({ preventScroll: true });
+    const trapFocus = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const controls = panelRef.current?.querySelectorAll<HTMLElement>("button, input");
+      if (!controls?.length) return;
+      const first = controls[0], last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", trapFocus);
+    return () => {
+      document.body.style.overflow = overflow;
+      document.removeEventListener("keydown", trapFocus);
+      previous?.focus({ preventScroll: true });
+    };
   }, [open]);
 
   useEffect(() => {
@@ -298,6 +317,10 @@ const Terminal = () => {
         <div className="term-overlay" onMouseDown={() => setOpen(false)}>
           <div
             className="term-panel"
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Portfolio shell"
             onMouseDown={(e) => e.stopPropagation()}
             data-cursor="disable"
           >
@@ -326,6 +349,7 @@ const Terminal = () => {
                 </span>
                 <input
                   ref={inputRef}
+                  aria-label="Shell command"
                   value={value}
                   spellCheck={false}
                   autoComplete="off"

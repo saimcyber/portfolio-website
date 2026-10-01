@@ -123,3 +123,7 @@ non-commercial terms cover the adapted scroll/intro code noted under **Origin**.
 Run `npm run build` and `npm run check:seo` before deployment. The sitemap includes the homepage only because the portfolio is one page; section anchors are internal links, not separate indexed URLs. Keep the Google verification meta tag in `index.html`. Structured data is generated from `src/data/content.ts`. The font is self-hosted through `@fontsource-variable/geist`.
 
 See [the SEO delivery report](docs/seo-report.md) and [the backlink plan](docs/backlink-strategy.md).
+
+## Navigation and UI verification (30 September 2026)
+
+Section links use native scrolling with a shared handler for Home, About links, direct hashes and browser history. The optional 3D scene is contained within the hero and cannot change other sections. Content no longer depends on SplitText or ScrollSmoother reveals. The What I Do cards expose all text and tools without hover. Crawlable favicon files live in public/. See [UI verification](docs/ui-verification.md).

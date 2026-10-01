@@ -33,10 +33,12 @@ const Landing = ({ children, sceneEnabled, onEnableScene }: PropsWithChildren<{
             </div>
           </div>
         </div>
-        {!sceneEnabled && <div className="hero-preview">
-          <img src="/images/cloud-cluster.svg" width="400" height="400" alt="Connected cloud infrastructure nodes surrounding a central container" />
-          <button className="scene-toggle" type="button" onClick={onEnableScene}>Explore 3D scene</button>
-        </div>}
+        <div className="hero-preview">
+          <img style={{ visibility: sceneEnabled ? "hidden" : "visible" }} aria-hidden={sceneEnabled} src="/images/cloud-cluster.svg" width="400" height="400" alt="Connected cloud infrastructure nodes surrounding a central container" />
+          <button className="scene-toggle" type="button" aria-pressed={sceneEnabled} onClick={onEnableScene}>
+            {sceneEnabled ? "Hide 3D scene" : "Explore 3D scene"}
+          </button>
+        </div>
         <ScrollCue />
         {children}
       </div>

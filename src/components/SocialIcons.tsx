@@ -3,12 +3,19 @@ import { MdMail } from "react-icons/md";
 import { HiOutlineDocumentText } from "react-icons/hi2";
 import "./styles/SocialIcons.css";
 import { TbNotes } from "react-icons/tb";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import HoverLinks from "./HoverLinks";
 import { personal } from "../data/content";
 import { debounce } from "./utils/debounce";
 
 const SocialIcons = () => {
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY < window.innerHeight * 0.25);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   /**
    * Magnetic hover on the social rail.
    *
@@ -94,7 +101,7 @@ const SocialIcons = () => {
   }, []);
 
   return (
-    <div className="icons-section">
+    <div className="icons-section" style={{ visibility: visible ? "visible" : "hidden" }}>
       <div className="social-icons" data-cursor="icons" id="social">
         <span>
           <a
