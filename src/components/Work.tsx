@@ -1,215 +1,53 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { MdArrowOutward, MdChevronLeft, MdChevronRight } from "react-icons/md";
-import "./styles/Work.css";
-import WorkImage from "./WorkImage";
 import { projects } from "../data/content";
-import { debounce } from "./utils/debounce";
+import media from "virtual:project-media";
+import WorkImage from "./WorkImage";
+import "./styles/Work.css";
 
-/**
- * A real, native horizontal scroller instead of a vertical-scroll-hijack.
- *
- * The previous version pinned the section and translated the row with a
- * scroll-driven GSAP tween - scrolling the page *down* moved the cards
- * *left*, which read as broken rather than intentional, and needed a
- * separate, half-working CSS patch to avoid also pinning on mobile (where
- * pin+scrub fights the browser's own address-bar-driven viewport changes).
- *
- * `.work-flex` is now a plain `overflow-x: auto` + `scroll-snap` container.
- * The browser handles start/end, momentum and touch scrolling correctly by
- * construction - no measuring the last card's edge, no manual pin-spacing.
- * Vertical page scroll never touches this section at all.
- */
 const Work = () => {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [atStart, setAtStart] = useState(true);
-  const [atEnd, setAtEnd] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const updateEdges = () => {
-    const el = trackRef.current;
-    if (!el) return;
-    const maxScroll = el.scrollWidth - el.clientWidth;
-    setAtStart(el.scrollLeft <= 4);
-    setAtEnd(el.scrollLeft >= maxScroll - 4);
-
-    const cards = el.querySelectorAll<HTMLElement>(".work-box");
-    if (!cards.length) return;
-    // Proportional position within the scrollable range, not "nearest card
-    // by offsetLeft" - with few cards that barely overflow their container,
-    // the reachable scroll range can be much smaller than the last card's
-    // own offsetLeft (it can never be scrolled flush left), which made that
-    // approach permanently favor an early card and never light up the last
-    // dot even sitting at the true scroll end. This always lands on 0 at the
-    // start and the last index at the end, which is what the dots actually
-    // need to communicate.
-    const ratio = maxScroll > 0 ? el.scrollLeft / maxScroll : 0;
-    setActiveIndex(Math.round(ratio * (cards.length - 1)));
+  const [active, setActive] = useState(0);
+  const nextProject = (direction: number, label: string) => {
+    setActive((index) => (index + direction + projects.length) % projects.length);
+    requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(`.project-panel:not([hidden]) button[aria-label="${label}"]`)?.focus({ preventScroll: true }));
   };
-
-  useEffect(() => {
-    const el = trackRef.current;
-    if (!el) return;
-    updateEdges();
-    el.addEventListener("scroll", updateEdges, { passive: true });
-    const onResize = debounce(updateEdges, 150);
-    window.addEventListener("resize", onResize);
-    return () => {
-      el.removeEventListener("scroll", updateEdges);
-      onResize.cancel();
-      window.removeEventListener("resize", onResize);
-    };
-  }, []);
-
-  const scrollByCard = (dir: 1 | -1) => {
-    const el = trackRef.current;
-    if (!el) return;
-    const card = el.querySelector<HTMLElement>(".work-box");
-    const gap = card
-      ? parseFloat(getComputedStyle(el).columnGap || "0")
-      : 0;
-    const step = (card?.getBoundingClientRect().width ?? el.clientWidth) + gap;
-    el.scrollBy({ left: step * dir, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
-  };
-
-  const scrollToCard = (index: number) => {
-    const el = trackRef.current;
-    const card = el?.querySelectorAll<HTMLElement>(".work-box")[index];
-    if (!el || !card) return;
-    const first = el.querySelector<HTMLElement>(".work-box");
-    el.scrollTo({ left: card.offsetLeft - (first?.offsetLeft ?? 0), behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
-  };
-
-  /**
-   * Mouse drag-to-scroll. Touch already gets native horizontal scrolling for
-   * free; this only kicks in for mouse input so it doesn't fight the
-   * browser's own touch handling.
-   */
-  useEffect(() => {
-    const el = trackRef.current;
-    if (!el) return;
-    let dragging = false;
-    let startX = 0;
-    let startScroll = 0;
-    let moved = false;
-
-    const onPointerDown = (e: PointerEvent) => {
-      if (e.pointerType !== "mouse") return;
-      dragging = true;
-      moved = false;
-      startX = e.clientX;
-      startScroll = el.scrollLeft;
-      el.classList.add("work-flex-grabbing");
-    };
-    const onPointerMove = (e: PointerEvent) => {
-      if (!dragging) return;
-      const dx = e.clientX - startX;
-      if (Math.abs(dx) > 3) moved = true;
-      el.scrollLeft = startScroll - dx;
-    };
-    const endDrag = () => {
-      dragging = false;
-      el.classList.remove("work-flex-grabbing");
-    };
-    // Suppress the click on a link/button if the pointer actually dragged,
-    // so a drag-release doesn't also fire a navigation.
-    const onClickCapture = (e: MouseEvent) => {
-      if (moved) {
-        e.preventDefault();
-        e.stopPropagation();
-        moved = false;
-      }
-    };
-
-    el.addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", endDrag);
-    el.addEventListener("click", onClickCapture, true);
-    return () => {
-      el.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", endDrag);
-      el.removeEventListener("click", onClickCapture, true);
-    };
-  }, []);
-
   return (
-    <div className="work-section" id="work">
-      <div className="work-container section-container">
-        <div className="work-heading-row">
-          <h2>
-            My <span>Work</span>
-          </h2>
-          <div className="work-controls">
-            <button
-              type="button"
-              className="work-arrow"
-              onClick={() => scrollByCard(-1)}
-              disabled={atStart}
-              aria-label="Previous project"
-              data-cursor="disable"
-            >
-              <MdChevronLeft />
-            </button>
-            <button
-              type="button"
-              className="work-arrow"
-              onClick={() => scrollByCard(1)}
-              disabled={atEnd}
-              aria-label="Next project"
-              data-cursor="disable"
-            >
-              <MdChevronRight />
-            </button>
-          </div>
-        </div>
-
-        <div className="work-flex" ref={trackRef} tabIndex={0} role="region" aria-label="Project carousel">
-          {projects.map((project, index) => (
-            <div className="work-box" key={project.name}>
-              <WorkImage image={project.image} alt={project.name} />
-              <div className="work-info">
-                <span className="work-index">0{index + 1}</span>
-                <h3>{project.name}</h3>
-                <p className="work-category">{project.category}</p>
-                <div className="work-tools">
-                  {project.tools.split(",").map((tool) => (
-                    <span className="work-tool" key={tool}>
-                      {tool.trim()}
-                    </span>
-                  ))}
-                </div>
-                {project.link && (
-                  <a
-                    className="work-link-btn"
-                    href={project.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-cursor="disable"
-                  >
-                    View project <MdArrowOutward />
-                  </a>
-                )}
+    <section className="work-section section-container" id="work" aria-labelledby="work-heading">
+      <div className="work-heading-row" data-reveal>
+        <div><p className="section-eyebrow">03 / Selected projects</p><h2 id="work-heading">Built to <span>ship.</span></h2></div>
+        <p className="work-intro">Cloud infrastructure. Secure pipelines.<br />Systems that work together.</p>
+      </div>
+      <div className="project-selectors" role="group" aria-label="Select a project" data-reveal>
+        {projects.map((project, index) => (
+          <button type="button" key={project.slug} className={`project-selector${active === index ? " is-active" : ""}`}
+            aria-pressed={active === index} aria-controls={`project-${project.slug}`} onClick={() => setActive(index)}>
+            <span>0{index + 1}</span>{project.name}<MdArrowOutward aria-hidden="true" />
+          </button>
+        ))}
+      </div>
+      {projects.map((project, index) => (
+        <article className={`project-panel project-theme-${index}`} id={`project-${project.slug}`} key={project.slug}
+          hidden={active !== index} aria-labelledby={`project-title-${project.slug}`}>
+          <WorkImage project={project} media={media[project.slug] ?? []} active={active === index} />
+          <div className="work-info">
+            <p className="work-category">{project.category}</p>
+            <h3 id={`project-title-${project.slug}`}>{project.name}</h3>
+            <p className="work-description">{project.description}</p>
+            <div className="work-tools" aria-label="Project tools">
+              {project.tools.split(",").map((tool) => <span key={tool} className="work-tool">{tool.trim()}</span>)}
+            </div>
+            {project.link && <a className="work-link-btn" href={project.link} target="_blank" rel="noopener noreferrer">View project <MdArrowOutward aria-hidden="true" /></a>}
+            <div className="project-pagination">
+              <span aria-live="polite">0{active + 1} <span className="pagination-total">/ 0{projects.length}</span></span>
+              <div>
+                <button type="button" aria-label="Previous project" onClick={() => nextProject(-1, "Previous project")}><MdChevronLeft /></button>
+                <button type="button" aria-label="Next project" onClick={() => nextProject(1, "Next project")}><MdChevronRight /></button>
               </div>
             </div>
-          ))}
-        </div>
-
-        <div className="work-dots">
-          {projects.map((project, index) => (
-            <button
-              type="button"
-              key={project.name}
-              className={`work-dot${index === activeIndex ? " is-active" : ""}`}
-              onClick={() => scrollToCard(index)}
-              aria-label={`Go to ${project.name}`}
-              aria-current={index === activeIndex ? "true" : undefined}
-              data-cursor="disable"
-            />
-          ))}
-        </div>
-      </div>
-    </div>
+          </div>
+        </article>
+      ))}
+    </section>
   );
 };
-
 export default Work;

@@ -88,7 +88,7 @@ function SceneContents({
   );
 }
 
-const Scene = () => {
+const Scene = ({ onReady }: { onReady: () => void }) => {
   const rigRef = useRef<THREE.Group | null>(null);
   const modelRef = useRef<HTMLDivElement>(null);
   const mouseRef = useRef({ x: 0, y: 0, moved: false });
@@ -147,7 +147,7 @@ const Scene = () => {
           // difference bloom hides anyway. antialias is off because the
           // EffectComposer renders into its own target - the context MSAA was
           // paid for and then discarded.
-          dpr={[1, 1.75]}
+          dpr={[1, 1.5]}
           gl={{ alpha: true, antialias: false }}
           camera={{
             position: [cam.position[0], cam.position[1], cam.position[2]],
@@ -158,6 +158,7 @@ const Scene = () => {
           onCreated={({ gl }) => {
             gl.toneMapping = THREE.ACESFilmicToneMapping;
             gl.toneMappingExposure = 1.05;
+            onReady();
           }}
         >
           <SceneContents

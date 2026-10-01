@@ -1,10 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import HoverLinks from "./HoverLinks";
 import { personal } from "../data/content";
 import "./styles/Navbar.css";
 
 
 const Navbar = () => {
+  const [active, setActive] = useState("landingDiv");
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      const ids = ["landingDiv", "about", "career", "work", "contact"];
+      let current = ids[0];
+      ids.forEach((id) => { if ((document.getElementById(id)?.getBoundingClientRect().top ?? Infinity) < window.innerHeight * .4) current = id; });
+      setActive(current);
+    };
+    const scroll = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(update); };
+    window.addEventListener("scroll", scroll, { passive: true });
+    update();
+    return () => { cancelAnimationFrame(frame); window.removeEventListener("scroll", scroll); };
+  }, []);
   useEffect(() => {
     const reducedMotion =
       typeof window.matchMedia === "function" &&
@@ -57,43 +71,41 @@ const Navbar = () => {
     <>
       <nav className="header" aria-label="Main navigation">
         <a href="/" data-home aria-label="Saim Zaib home" className="navbar-title" data-cursor="disable">
-          {personal.fullName}
+          {personal.fullName}<span>.</span>
         </a>
         <a
           href={`mailto:${personal.email}`}
           className="navbar-connect"
           data-cursor="disable"
         >
-          {personal.email}
+          Let's talk ↗
         </a>
         <ul>
-          <li><a href="#landingDiv"><HoverLinks text="HOME" /></a></li>
+          <li><a href="#landingDiv" aria-current={active === "landingDiv" ? "location" : undefined}><HoverLinks text="HOME" /></a></li>
           <li>
-            <a data-href="#about" href="#about">
+            <a data-href="#about" href="#about" aria-current={active === "about" ? "location" : undefined}>
               <HoverLinks text="ABOUT" />
             </a>
           </li>
           <li>
-            <a data-href="#career" href="#career">
+            <a data-href="#career" href="#career" aria-current={active === "career" ? "location" : undefined}>
               <HoverLinks text="CAREER" />
             </a>
           </li>
           <li>
-            <a data-href="#work" href="#work">
+            <a data-href="#work" href="#work" aria-current={active === "work" ? "location" : undefined}>
               <HoverLinks text="WORK" />
             </a>
           </li>
           <li>
-            <a data-href="#contact" href="#contact">
+            <a data-href="#contact" href="#contact" aria-current={active === "contact" ? "location" : undefined}>
               <HoverLinks text="CONTACT" />
             </a>
           </li>
         </ul>
       </nav>
 
-      <div className="landing-circle1"></div>
-      <div className="landing-circle2"></div>
-      <div className="nav-fade"></div>
+      <div className="nav-progress" aria-hidden="true" />
     </>
   );
 };

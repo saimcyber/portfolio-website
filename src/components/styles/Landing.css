@@ -1,420 +1,112 @@
-.landing-section {
-  width: 100%;
-  max-width: var(--cMaxWidth);
-  margin: auto;
-  position: relative;
-  height: var(--vh);
-}
+.landing-section { position: relative; isolation: isolate; overflow: clip; background: radial-gradient(ellipse at 75% 45%, #211432 0, transparent 48%); }
+.hero-grid { position: absolute; inset: 0; background-image: linear-gradient(#c2a4ff06 1px, transparent 1px), linear-gradient(90deg, #c2a4ff06 1px, transparent 1px); background-size: 72px 72px; mask-image: linear-gradient(90deg, transparent 25%, black); pointer-events: none; }
 .landing-container {
-  width: var(--cWidth);
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  height: 100svh;
+  min-height: min-content;
+  padding: clamp(92px, 12svh, 120px) 0 clamp(60px, 8svh, 80px);
   margin: auto;
-  height: 100%;
-  position: relative;
-  max-width: var(--cMaxWidth);
 }
-.landing-circle1 {
-  top: 0%;
-  left: 0%;
-  z-index: 15;
-  position: fixed;
-  width: 300px;
-  height: 300px;
-  background-color: #fb8dff;
-  box-shadow: inset -50px 40px 50px rgba(84, 0, 255, 0.6);
-  filter: blur(60px);
-  border-radius: 50%;
-  animation: loadingCircle 5s linear infinite;
-}
-.nav-fade {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 130px;
-  background-image: linear-gradient(
-    0deg,
-    transparent,
-    var(--backgroundColor) 70%
-  );
-  pointer-events: none;
-  z-index: 12;
-  opacity: 1;
-  left: 0;
-}
-/* Below 500px the nav links stack into a column roughly 115px tall, so the
-   bottom of that column sat in the transparent tail of a 130px fade and page
-   content scrolled under it with nothing behind: "CONTACT" and the Career
-   section's "2024" heading were rendering directly on top of each other, both
-   in light type. Extending the fade past the bottom of the stacked column
-   keeps the links legible over whatever is scrolling underneath. */
-@media only screen and (max-width: 499px) {
-  .nav-fade {
-    height: 200px;
-  }
-}
-@keyframes loadingCircle {
-  0% {
-    transform: translate(-95%, -75%) rotateZ(0deg);
-  }
-  100% {
-    transform: translate(-95%, -75%) rotateZ(360deg);
-  }
-}
-
-.landing-circle2 {
-  top: 50%;
-  right: 0%;
-  transform: translate(calc(100% - 2px), -50%);
-  z-index: 9;
-  position: fixed;
-  display: none;
-  width: 300px;
-  height: 300px;
-  background-color: #fb8dff;
-  box-shadow: inset -50px 40px 50px rgba(84, 0, 255, 0.6);
-  filter: blur(50px);
-  border-radius: 50%;
-  animation: loadingCircle2 5s linear infinite;
-}
-@keyframes loadingCircle2 {
-  100% {
-    transform: translate(calc(100% - 2px), -50%) rotate(360deg);
-  }
-}
-
-/* These are two 300px discs with a 50-60px blur filter - large layers the
-   compositor repaints every frame they animate. `body.hero-offscreen` is set
-   by Scene.tsx's IntersectionObserver once the hero has scrolled away, so
-   there is no reason to keep spinning them behind the rest of the page.
-   prefers-reduced-motion stops them outright. */
-body.hero-offscreen .landing-circle1,
-body.hero-offscreen .landing-circle2 {
-  animation-play-state: paused;
-}
-@media (prefers-reduced-motion: reduce) {
-  .landing-circle1,
-  .landing-circle2 {
-    animation: none;
-  }
-}
-.character-rim {
-  /* Soft halo behind the cluster. This was a floor light under a standing
-     character; at its old size and saturation it flooded the whole hero. */
-  position: absolute;
-  width: 260px;
-  height: 260px;
-  z-index: 1;
-  background-color: #6b3fc0;
-  box-shadow: inset 40px 24px 70px 0px rgba(85, 0, 255, 0.5);
-  filter: blur(70px);
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, 100%) scale(1.3);
-  opacity: 0;
-}
-.character-model {
-  height: 80%;
-  height: 80vh;
-  position: absolute;
-  max-width: 1920px;
-  max-height: 1080px;
-  transform: translateX(-50%);
-  width: 100%;
-  left: 50%;
-  z-index: 0;
-  bottom: 50px;
-  /*
-   * Was `pointer-events: inherit`, with only the `<canvas>` itself (below)
-   * set to `none`. On desktop this whole block renders as a sibling of
-   * #smooth-wrapper (see MainContainer.tsx), positioned absolutely against
-   * the outer, non-scrolling .container-main - so it stays fixed at the
-   * same on-screen position no matter how far the page has scrolled, always
-   * overlapping whatever section currently occupies that band of the
-   * viewport. React Three Fiber wraps its <canvas> in its own plain <div>
-   * that the `canvas`-only selector below never reached, and that div - not
-   * the canvas - was inheriting pointer-events: auto and swallowing clicks
-   * meant for real content underneath (confirmed via elementFromPoint:
-   * Work's arrow buttons were unclickable whenever the hero happened to
-   * overlap that part of the page). Nothing in Cluster/* attaches a DOM
-   * pointer/click handler - the parallax tracking is a document-level
-   * `mousemove` listener - so disabling pointer-events on the whole block
-   * is safe.
-   */
-  pointer-events: none;
-}
-/*
- * react-three-fiber's <Canvas> renders its own wrapper <div> around the
- * <canvas> with an inline `pointer-events: auto` (its own default, for
- * libraries like drei's OrbitControls that need it) - an inline style beats
- * any external rule on that same element, including the `pointer-events:
- * none` above, which only reaches this div via inheritance and inheritance
- * never wins over an element's own explicit value. `!important` here is the
- * standard way to override a library-set inline style; nothing in Cluster/*
- * attaches a DOM pointer handler, so this is safe everywhere.
- */
-.character-model > div {
-  pointer-events: none !important;
-}
-.character-model::after {
-  content: "";
-  width: 100vw;
-  height: 250px;
-  background-image: linear-gradient(
-    to bottom,
-    transparent,
-    var(--backgroundColor) 70%
-  );
-  bottom: -50px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9;
-  position: absolute;
-}
-.character-model::before {
-  content: "";
-  width: 100vw;
-  height: 700px;
-  background-color: var(--backgroundColor);
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9;
-  position: absolute;
-}
-.character-model canvas {
-  position: relative;
-  pointer-events: none;
-  z-index: 2;
-}
-.landing-intro {
-  position: absolute;
-  z-index: 9;
-  top: 12%;
-  left: 0;
-}
-.landing-greeting {
-  margin: 0;
-  color: var(--accentColor);
-  font-size: 22px;
-  font-weight: 300;
-  letter-spacing: 2px;
-}
-
-.landing-intro h1 {
-  margin: 0;
-  letter-spacing: 2px;
-  font-size: 28px;
-  line-height: 28px;
-  font-weight: 500;
-  font-family: "Geist", sans-serif;
-}
-
-/* .landing-intro h1 span {
-   font-weight: 200; 
-} */
-
-.landing-info {
-  position: absolute;
-  right: 50%;
-  transform: translateX(50%);
-  /* Was 40px, which put the bottom of "AT SCALE" within 2px of the top of the
-     bottom-centred "~ SHELL" pill (fixed, bottom:16px, ~30px tall) at 360, 390
-     and 414 - and actually overlapping it by ~6px at 768x1024, where the hero
-     type steps up a size. 64px clears the pill at every width below the
-     desktop breakpoint, where this value stops applying anyway. */
-  bottom: 64px;
-  top: inherit;
-  z-index: 9;
-}
-.landing-prefix {
-  font-size: 22px;
-  letter-spacing: 2px;
-  font-weight: 300;
-  color: var(--accentColor);
-  margin: 0;
-}
-.landing-info .landing-line {
-  margin: 0;
-  margin-top: -6px;
-  margin-left: 20px;
-  font-family: "Geist", sans-serif;
-  font-weight: 600;
-  font-size: 32px;
-  line-height: 40px;
-  position: relative;
-  display: flex;
-  flex-wrap: nowrap;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-}
-.landing-h2-info-1 {
-  position: absolute;
-  top: 0;
-}
-.landing-info-h2 {
-  color: #c481ff;
-  font-size: 42px;
-  width: 120%;
-  margin: 0;
-  font-family: "Geist", sans-serif;
-  font-weight: 600;
-  position: relative;
-  margin-left: -5px;
-}
-.landing-h2-2 {
-  position: absolute;
-  top: 0;
-}
-.landing-info-h2::after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 120%;
-  z-index: 3;
-  background-image: linear-gradient(
-    0deg,
-    var(--backgroundColor) 16%,
-    rgba(0, 0, 0, 0) 52%
-  );
-  top: 0;
-  left: 0;
-}
-@media screen and (min-width: 500px) {
-  .landing-circle2 {
-    display: block;
-  }
-  .character-model {
-    z-index: 0;
-  }
-  .landing-prefix {
-    font-size: 18px;
-  }
-  .landing-greeting {
-    font-size: 18px;
-  }
-  .landing-intro h1 {
-    font-size: 30px;
-    line-height: 30px;
-  }
-  .landing-info .landing-line {
-    font-size: 35px;
-    line-height: 40px;
-  }
-  .landing-info-h2 {
-    font-size: 38px;
-  }
-}
-@media screen and (min-width: 768px) {
-  .character-model {
-    height: 80vh;
-  }
-  .landing-greeting {
-    font-size: 25px;
-  }
-  .landing-intro h1 {
-    font-size: 40px;
-    line-height: 35px;
-  }
-  .landing-prefix {
-    font-size: 25px;
-  }
-  .landing-info .landing-line {
-    font-size: 45px;
-    line-height: 42px;
-  }
-  .landing-info-h2 {
-    font-size: 55px;
-  }
-}
-@media screen and (min-width: 1025px) {
-  .character-model {
-    height: 100vh;
-    left: 0;
-    transform: none;
-    bottom: 0;
-    z-index: 11;
-    position: fixed;
-  }
-  .character-model::after,
-  .character-model::before {
-    display: none;
-  }
-  .landing-intro {
-    top: 50%;
-    left: auto;
-    right: 66%;
-    transform: translate(0%, -50%);
-  }
-
-  .landing-info {
-    bottom: auto;
-    top: 51%;
-    z-index: inherit;
-    text-align: left;
-    transform: translate(0%, -50%);
-    right: auto;
-    left: 66%;
-  }
-}
-@media screen and (min-width: 1200px) {
-  .landing-intro {
-    top: 50%;
-    left: auto;
-    right: 70%;
-    transform: translate(0%, -50%);
-  }
-
-  .landing-info {
-    bottom: auto;
-    top: 51%;
-    z-index: inherit;
-    text-align: left;
-    transform: translate(0%, -50%);
-    right: auto;
-    left: 70%;
-  }
-}
-@media screen and (min-width: 1600px) {
-  .landing-greeting {
-    font-size: 35px;
-  }
-  .landing-intro h1 {
-    font-size: 60px;
-    line-height: 55px;
-  }
-  .landing-prefix {
-    font-size: 35px;
-  }
-  .landing-info .landing-line {
-    font-size: 65px;
-    line-height: 62px;
-  }
-  .landing-info-h2 {
-    font-size: 75px;
-  }
-}
-
-.landing-role { max-width: 230px; font-size: 16px; color: #c2a4ff; }
-.landing-h2-2, .landing-h2-info-1 { visibility: hidden; }
-
-.landing-info-h2::after { display: none; }
-.hero-preview { position: absolute; left: 50%; top: 48%; transform: translate(-50%, -50%); width: min(32vw, 400px); text-align: center; z-index: 2; }
-.hero-preview img { display: block; width: 100%; height: auto; }
-.scene-toggle { border: 1px solid #8f83a5; background: #17121e; color: #eae5ec; border-radius: 24px; padding: 10px 18px; cursor: pointer; font: inherit; font-size: 14px; }
-.scene-toggle:hover { border-color: #c2a4ff; }
+.landing-intro { position: relative; z-index: 2; }
+.landing-greeting { display: flex; gap: 10px; align-items: center; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #b9aecb; margin: 0 0 clamp(12px, 2.5svh, 24px); }
+.landing-greeting > span { width: 6px; height: 6px; background: #bff8c9; border-radius: 50%; box-shadow: 0 0 12px #bff8c94d; }
+.landing-intro h1 { font-size: clamp(64px, min(9.8vw, 16svh), 156px); line-height: .87; font-weight: 650; letter-spacing: -.075em; margin: 0 0 clamp(16px, 3svh, 32px); }
+.landing-intro h1 > span { color: var(--accentColor); }
+.landing-intro h1 .hero-period { color: #bff8c9; }
+.hero-statement { font-size: clamp(24px, min(2.4vw, 4.5svh), 36px); letter-spacing: -.035em; line-height: 1.3; margin: 0 0 clamp(12px, 2svh, 20px); }
+.hero-word-window { display: inline-block; height: 1.3em; overflow: hidden; color: var(--accentColor); vertical-align: bottom; }
+.hero-word-window > span { display: block; animation: heroWords 8s cubic-bezier(.76,0,.24,1) infinite; }
+@keyframes heroWords { 0%, 35% { transform: translateY(0); } 45%, 80% { transform: translateY(-33.333%); } 90%, 100% { transform: translateY(-66.666%); } }
+.hero-description { color: #a99dbb; font-size: clamp(13px, 2.1svh, 15px); line-height: 1.75; margin: 0 0 clamp(16px, 3svh, 30px); }
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; font-size: 13px; }
+.hero-actions a { display: inline-flex; align-items: center; gap: 16px; min-height: 48px; transition: transform .25s, background .25s; }
+.hero-actions a svg { font-size: 19px; transition: transform .25s; }
+.hero-actions a:hover svg { transform: translate(3px,-3px); }
+.hero-primary { background: var(--accentColor); color: #17101e; padding: 0 22px; border-radius: 6px; font-weight: 600; }
+.hero-primary:hover { background: #ddcaff; color: #17101e; transform: translateY(-3px); }
+.hero-secondary { color: #eae5ec; }
+.hero-visual { position: relative; min-width: 0; height: min(560px, 100%); min-height: 0; aspect-ratio: 1; isolation: isolate; }
+.hero-preview { position: absolute; width: 80%; inset: 50% auto auto 50%; transform: translate(-50%, -50%); transition: opacity 1s; animation: heroFloat 7s ease-in-out infinite; }
+.hero-preview img { width: 100%; height: auto; display: block; }
+.scene-ready .hero-preview { opacity: 0; }
+@keyframes heroFloat { 50% { transform: translate(-50%, calc(-50% - 14px)); } }
+.hero-orbit { position: absolute; border: 1px solid #c2a4ff14; border-radius: 50%; left: 50%; top: 50%; pointer-events: none; transform: translate(-50%, -50%); }
+.orbit-outer { width: min(100%, 64svh); aspect-ratio: 1; }
+.orbit-inner { width: min(75%, 48svh); aspect-ratio: 1; border-style: dashed; }
+.hero-node-label { position: absolute; z-index: 2; font: 10px ui-monospace, monospace; letter-spacing: 1px; color: #a99dbb; display: flex; gap: 10px; align-items: center; padding: 10px 14px; border: 1px solid #c2a4ff20; background: #100b18cc; border-radius: 6px; }
+.hero-node-label i { width: 5px; height: 5px; border-radius: 50%; background: #bff8c9; }
+.label-top { top: 7%; right: 6%; }
+.label-bottom { bottom: 7%; left: 2%; }
+.label-bottom span { color: var(--accentColor); font-size: 15px; }
+.scene-toggle { position: absolute; bottom: 8%; right: 2%; z-index: 3; border: 0; background: transparent; color: #c2b5d3; font: 10px ui-monospace, monospace; cursor: pointer; padding: 12px; min-height: 44px; opacity: .8; }
+.scene-toggle:hover { color: #fff; opacity: 1; }
+.character-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; animation: sceneIn 1s ease both; }
+.character-model { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.character-model > div { pointer-events: none !important; }
+.character-rim { position: absolute; inset: 25%; background: #8053c026; border-radius: 50%; filter: blur(65px); }
+@keyframes sceneIn { from { opacity: 0; } to { opacity: 1; } }
+.hero-bottom { position: absolute; bottom: clamp(12px, 3svh, 28px); left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; gap: 20px; color: #a99dbb; font: 10px ui-monospace, monospace; }
+.hero-coordinate { color: #8d7e9e; margin-left: 10px; }
+.hero-bottom-right { margin-right: 100px; }
+.scroll-cue { display: flex; align-items: center; gap: 18px; text-transform: uppercase; letter-spacing: 1.5px; padding: 12px; }
+.scroll-cue > span:last-child { color: var(--accentColor); font-size: 20px; animation: cueDrift 2s ease-in-out infinite; }
+@keyframes cueDrift { 50% { transform: translateY(5px); } }
+.hero-sleeping .hero-preview, .hero-sleeping .hero-word-window > span, .hero-sleeping .scroll-cue > span { animation-play-state: paused; }
 @media (max-width: 1024px) {
-  .hero-preview { width: 220px; top: 51%; }
   .scene-toggle { display: none; }
+  .hero-coordinate { display: none; }
+  .landing-intro h1 { font-size: clamp(64px, min(12vw, 16svh), 116px); }
 }
-@media (max-width: 499px) { .hero-preview { width: 180px; top: 56%; } }
-@media (prefers-reduced-motion: reduce) { .scene-toggle { display: none; } }
-@media (max-width: 1024px) { .landing-section { height: min(100svh, 720px); min-height: 600px; } }
-
-/* Keep the optional scene in the hero's own scrolling and clipping context. */
-.landing-section { isolation: isolate; overflow: clip; }
-.character-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
-.character-container .character-model { position: absolute; inset: 8% 0 8%; width: 100%; height: 84%; max-height: none; max-width: none; transform: none; }
-.character-model::before, .character-model::after { display: none; }
-.character-rim { opacity: .34; transform: translate(-50%, -10%); }
-.hero-preview { z-index: 10; pointer-events: none; }
-.hero-preview .scene-toggle { pointer-events: auto; }
+@media (max-width: 700px) {
+  .landing-container {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(64px, 1fr);
+    padding: 108px 0 56px;
+    row-gap: 12px;
+  }
+  .landing-intro h1 { font-size: clamp(56px, min(20vw, 13svh), 100px); margin-bottom: 16px; }
+  .landing-greeting { font-size: 10px; letter-spacing: 1.5px; margin-bottom: 12px; }
+  .hero-statement { font-size: clamp(22px, 3.3svh, 28px); margin-bottom: 12px; }
+  .hero-description { font-size: 12px; line-height: 1.65; margin-bottom: 16px; }
+  .hero-visual { height: 100%; max-height: 260px; width: min(100%, 360px); aspect-ratio: auto; justify-self: center; }
+  .hero-preview { width: auto; height: min(85%, 240px); }
+  .hero-preview img { width: auto; height: 100%; max-width: none; }
+  .hero-orbit { width: auto; height: min(100%, 260px); aspect-ratio: 1; }
+  .orbit-inner { height: min(75%, 195px); }
+  .hero-actions { gap: 12px; font-size: 11px; }
+  .hero-actions a { min-height: 44px; gap: 12px; }
+  .hero-primary { padding: 0 14px; }
+  .hero-bottom { bottom: 10px; gap: 4px; font-size: 9px; }
+  .hero-bottom-right { display: none; }
+  .scroll-cue { gap: 10px; padding: 8px 0; font-size: 8px; }
+  .label-top { top: 4%; right: 0; }
+  .label-bottom { bottom: 2%; left: 0; }
+}
+@media (max-width: 700px) and (max-height: 700px) {
+  .hero-node-label { display: none; }
+}
+/* Short landscape screens retain readable copy and usable controls. */
+@media (min-width: 701px) and (max-height: 520px) {
+  .landing-container { padding: 92px 0 20px; }
+  .landing-intro h1 { font-size: clamp(44px, 13svh, 68px); margin-bottom: 12px; }
+  .landing-greeting { font-size: 9px; margin-bottom: 8px; }
+  .hero-statement { font-size: 20px; margin-bottom: 10px; }
+  .hero-description { font-size: 11px; line-height: 1.6; margin-bottom: 12px; }
+  .hero-actions { font-size: 11px; gap: 16px; }
+  .hero-actions a { min-height: 44px; gap: 10px; }
+  .hero-primary { padding: 0 14px; }
+  .hero-bottom, .hero-node-label { display: none; }
+}
+@media (min-width: 480px) and (max-width: 700px) and (max-height: 520px) {
+  .landing-container { grid-template-rows: 1fr; padding: 108px 0 16px; row-gap: 0; }
+  .hero-visual, .hero-bottom { display: none; }
+  .landing-intro h1 { font-size: 44px; margin-bottom: 10px; }
+  .landing-intro h1 br, .hero-statement > br, .hero-description > br { display: none; }
+  .landing-greeting { font-size: 9px; margin-bottom: 8px; }
+  .hero-statement { font-size: 20px; margin-bottom: 8px; }
+  .hero-description { font-size: 11px; line-height: 1.6; margin-bottom: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .hero-word-window > span, .hero-preview, .scroll-cue > span:last-child, .character-container { animation: none; } .scene-toggle { display: none; } }

@@ -52,31 +52,39 @@ export const careerData: CareerEntry[] = [
 ];
 
 export interface Project {
+  slug: string;
   name: string;
   category: string;
+  description: string;
+  stages: string[];
   tools: string;
-  image: string;
   link?: string;
 }
 
 export const projects: Project[] = [
   {
+    slug: "securekubeops-pipeline",
     name: "SecureKubeOps Pipeline",
     category: "Kubernetes & CI/CD Security",
+    description: "A security-first path from commit to cluster. Container builds, vulnerability scanning, Kubernetes deployments, and observability come together in one pipeline.",
+    stages: ["Commit", "Build", "Scan", "Deploy", "Observe"],
     tools: "GitHub Actions, Docker, Kubernetes, Minikube, Trivy, Prometheus, Grafana",
-    image: "/images/placeholder.webp",
   },
   {
+    slug: "awarenet-platform",
     name: "AwareNet Platform",
     category: "Containerized Microservices",
+    description: "Containerized services with a shared API gateway. Python services, JWT authentication, and role-based access keep the application modular and its boundaries clear.",
+    stages: ["Gateway", "Authenticate", "Authorize", "Services"],
     tools: "Docker, Python, API Gateway, JWT, RBAC",
-    image: "/images/placeholder.webp",
   },
   {
+    slug: "aws-cloud-automation",
     name: "AWS Cloud Automation",
     category: "Infrastructure as Code on AWS",
+    description: "Repeatable cloud infrastructure defined in code. Terraform brings compute, networking, data, and monitoring together with scoped IAM permissions on AWS.",
+    stages: ["Terraform", "VPC", "Compute", "Data", "Monitor"],
     tools: "Terraform, EC2, Lambda, RDS, CloudWatch, IAM, VPC",
-    image: "/images/placeholder.webp",
   },
 ];
 

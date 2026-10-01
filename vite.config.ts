@@ -1,9 +1,10 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { projectMediaPlugin } from "./scripts/project-media.mjs";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), projectMediaPlugin()],
   ssr: { noExternal: ["gsap", "react-icons"] },
   build: {
     target: "es2020",

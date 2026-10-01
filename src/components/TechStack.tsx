@@ -74,8 +74,8 @@ const TechStack = () => {
   return (
     <section className="techstack" id="stack" aria-labelledby="stack-heading">
       <div className="stack-inner">
-        <header className="stack-head">
-          <p className="stack-eyebrow">My Stack</p>
+        <header className="stack-head" data-reveal>
+          <p className="stack-eyebrow">04 / My Stack</p>
           <h2 className="stack-title" id="stack-heading">
             Commit to production, <span>one pipeline.</span>
           </h2>

@@ -1,0 +1,35 @@
+.stack-inner, .fp-inner { width: min(1200px, calc(100% - 128px)); max-width: none; }
+.stack-title { font-size: clamp(36px, 4vw, 60px); font-weight: 450; letter-spacing: -.045em; max-width: 22ch; }
+.stack-eyebrow, .fp-eyebrow, .contact-eyebrow { font: 10px ui-monospace, monospace; letter-spacing: 2px; }
+.stack-flow { grid-template-columns: repeat(5, 1fr); gap: 20px; }
+.stack-stage { min-width: 0; }
+.stack-tool { min-height: 44px; font-size: 11px; }
+.stack-stage h3 { font-size: 15px; }
+.stack-stage-head p { min-height: 40px; font-size: 11px; }
+.stack-flow::before { display: block; }
+.stack-stage::before { box-shadow: 0 0 15px #c2a4ff35; }
+.stack-tool:hover { transform: translateY(-2px); }
+.stack-foundation { margin-top: 45px; }
+.fp-title { font-size: clamp(34px, 4vw, 54px); letter-spacing: -.04em; }
+.contact-section { padding: 140px 0 60px; background: radial-gradient(ellipse at 50% 50%, #28173870, transparent 65%); }
+.contact-inner { max-width: 1050px; }
+.contact-title { font-size: clamp(40px, 6vw, 84px); letter-spacing: -.05em; line-height: 1.08; max-width: 14ch; margin: 24px auto 36px; }
+.contact-email { font-size: clamp(18px, 2.8vw, 36px); letter-spacing: -.02em; }
+.contact-meta { font-size: 12px; margin-top: 32px; }
+.contact-bottom { margin-top: 85px; }
+.icons-section { width: calc(100% - 32px); pointer-events: none; }
+.social-icons { left: 0; gap: 4px; padding: 0; bottom: 40px; }
+.social-icons span { width: 40px; height: 40px; pointer-events: auto; }
+.social-icons a, .social-icons a:hover { font-size: 19px; color: #b9aecb; }
+.resume-button { display: none; }
+.cursor-main { --size: 18px; opacity: .7; box-shadow: none; }
+.cursor-disable { --size: 0px; }
+.term-hint { bottom: 14px; left: auto; right: 22px; transform: none; padding: 10px 14px; }
+@media (max-width: 1100px) { .stack-flow { grid-template-columns: repeat(3, 1fr); gap: 32px 20px; } .stack-flow::before { display: none; } .stack-stage-head p { min-height: auto; } }
+@media (max-width: 900px) { .stack-inner, .fp-inner { width: calc(100% - 48px); } .stack-title { font-size: 36px; } .techstack { padding: 85px 0; } .social-icons { display: none; } .contact-section { padding: 90px 0 40px; } .term-hint { right: 14px; bottom: 10px; font-size: 9px; } }
+@media (max-width: 600px) { .stack-flow { grid-template-columns: 1fr; gap: 0; } .stack-flow::before { display: block; } .stack-stage-head p { margin-bottom: 14px; } .stack-tools { display: flex; flex-direction: row; flex-wrap: wrap; } .stack-stage { padding-top: 0; } .stack-title { font-size: 32px; } .contact-meta { gap: 14px; } }
+@media (max-width: 700px) {
+  /* The shell shares the spare brand-row space, keeping the hero footer clear. */
+  .term-hint { top: 20px; bottom: auto; right: 24px; padding: 8px 11px; z-index: 10000; }
+}
+@media (prefers-reduced-motion: reduce) { .cursor-main { display: none; } }

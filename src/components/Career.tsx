@@ -5,7 +5,8 @@ const Career = () => {
   return (
     <div className="career-section section-container" id="career">
       <div className="career-container">
-        <h2>
+        <p className="section-eyebrow" data-reveal>02 / The journey</p>
+        <h2 data-reveal>
           My career <span>&</span>
           <br /> experience
         </h2>
@@ -14,7 +15,7 @@ const Career = () => {
             <div className="career-dot"></div>
           </div>
           {careerData.map((entry) => (
-            <div className="career-info-box" key={entry.role}>
+            <div className="career-info-box" key={entry.role} data-reveal>
               <div className="career-info-in">
                 <div className="career-role">
                   <h3 className="career-role-title">{entry.role}</h3>

@@ -12,6 +12,8 @@ import Terminal from "./Terminal";
 import WhatIDo from "./WhatIDo";
 import TechStack from "./TechStack";
 import Work from "./Work";
+import Motion from "./Motion";
+import "./styles/Experience.css";
 
 const isCoarsePointer =
   typeof window !== "undefined" &&
@@ -45,6 +47,7 @@ const MainContainer = ({ children, sceneEnabled, onEnableScene }: PropsWithChild
           effect still ran a permanent rAF loop + document mousemove listener.
           Skip it entirely where there's no fine pointer. */}
       {isDesktopView && !isCoarsePointer && <Cursor />}
+      <Motion />
       <a className="skip-link" href="#about">Skip to content</a>
       <Navbar />
       <SocialIcons />
@@ -61,15 +64,9 @@ const MainContainer = ({ children, sceneEnabled, onEnableScene }: PropsWithChild
             <div className="section-divider" />
             <Work />
             <div className="section-divider" />
-            <Footprint />
-            <div className="section-divider" />
-            {/* Rendered unconditionally, on every viewport. It used to be
-                desktop-only and lazily mounted behind a scroll threshold,
-                because it was a 2.2MB Rapier physics canvas. Now that it is
-                plain markup there is nothing to defer - and gating it left
-                phones with two adjacent `.section-divider` hairlines and
-                nothing between them. */}
             <TechStack />
+            <div className="section-divider" />
+            <Footprint />
             <div className="section-divider" />
             <Contact />
           </div>

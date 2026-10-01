@@ -6,7 +6,7 @@ import "./styles/Contact.css";
 const Contact = () => {
   return (
     <div className="contact-section" id="contact">
-      <div className="contact-inner">
+      <div className="contact-inner" data-reveal>
         <p className="contact-eyebrow">Get in touch</p>
         <h2 className="contact-title">Let's build something secure.</h2>
 
